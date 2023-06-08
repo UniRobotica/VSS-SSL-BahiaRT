@@ -1,3 +1,3 @@
-# VSS/SSL BahiaRT ACSO UNEB
+# VSS/SSL BahiaRT ACSO UNEB Real League
 
 Em construção
