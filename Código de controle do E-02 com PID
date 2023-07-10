@@ -31,9 +31,9 @@ int PinoSensor1 = 5; // Pino do microcontrolador ligado ao pino OUT do sensor di
 int PinoSensor2 = 27; // Pino do microcontrolador ligado ao pino OUT do sensor esquerdo
 unsigned int PulsosDisco1 = 20; // Disco encoder direito (Alterar o valor conforme fendas disco encoder)
 unsigned int PulsosDisco2 = 20; // Disco encoder esquerdo (Alterar o valor conforme fendas disco encoder)
-double PWM1 = 125;
-double PWM2 = 175;
-double PWM3 = 225;
+int PWM1 = 125;
+int PWM2 = 175;
+int PWM3 = 225;
 double RPM1; // RPM do encoder direito
 double RPM2; // RPM do encoder esquerdo
 double Input1; // Entrada para o PID da roda direita
