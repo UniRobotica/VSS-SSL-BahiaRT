@@ -100,10 +100,8 @@ void recvWithStartEndMarkers(){
     }
 }
 
-
 void sendData(){   
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
     delay(3);
-    
 }

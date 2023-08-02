@@ -2,27 +2,16 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-//pin definitions for board V1
-/*
-#define PWMA 19
-#define PWMB 27
-#define A1  5
-#define A2  32
-#define B1  25
-#define B2  26
-#define stby 33
-*/
-
-//pin definitions for Placa V2
 #define PWMA 15
+#define A1 2
+#define B1 4
+
 #define PWMB 13
-#define A1  2
-#define A2  12
-#define B1  4
-#define B2  14
+#define A2 12 
+#define B2 14
 
 // This is de code for the board that is in robots
-int robot_id = 3;
+int robot_id = 0;
 int id;
 int first_mark = 0, second_mark;
 
@@ -48,61 +37,9 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
 }
 
 
-void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
-  if (speedR > 0) {
-    digitalWrite(A1, 1);
-    digitalWrite(A2, 0);
-  } else {
-    digitalWrite(A1, 0);
-    digitalWrite(A2, 1);
-  }
-  ledcWrite(1, abs( speedR));
-}
-
-
-void motor_L(int speedL) {
-  if (speedL > 0) {
-    digitalWrite(B1, 1);
-    digitalWrite(B2, 0);
-  } else {
-    digitalWrite(B1, 0);
-    digitalWrite(B2, 1);
-  }
-  ledcWrite(2, abs( speedL));
-}
-
-
-void motors_control(float wl, float wr) {
-  if (wr > 0 )
-  {
-    motor_R(255);
-  } else if (wr < 0)
-  {
-    motor_R(-255);
-  } else
-  {
-    motor_R(0);
-  }
-  
-  if (wl > 0 )
-  {
-    motor_R(255);
-  } else if (wr < 0)
-  {
-    motor_L(-255);
-  } else
-  {
-    motor_L(0);
-  }
-  
-}
-
-
 void setup() {
-  Serial.begin(115200);
-
+  
   // configuração de pinos
-
   ledcAttachPin(PWMA, 1);
   ledcAttachPin(PWMB, 2);
 
@@ -133,19 +70,61 @@ void setup() {
 
   if (esp_now_init() != ESP_OK) 
   {
-    Serial.println("Error initializing ESP-NOW");
     return;
   }
 
   esp_now_register_recv_cb(OnDataRecv);
   
-  // configuração mpu
-
-  Serial.print("ESP Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
-
 }
 
+void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
+  if (speedR > 0) {
+    digitalWrite(A1, 1);
+    digitalWrite(B1, 0);
+  } else {
+    digitalWrite(A1, 0);
+    digitalWrite(B1, 1);
+  }
+  ledcWrite(1, abs( speedR));
+}
+
+
+void motor_L(int speedL) {
+  if (speedL > 0) {
+    digitalWrite(A2, 1);
+    digitalWrite(B2, 0);
+  } else {
+    digitalWrite(A2, 0);
+    digitalWrite(B2, 1);
+  }
+  ledcWrite(2, abs( speedL));
+}
+
+
+void motors_control(float wl, float wr) {
+  if (wr > 0 )
+  {
+    motor_R(255);
+  } else if (wr < 0)
+  {
+    motor_R(-255);
+  } else
+  {
+    motor_R(0);
+  }
+
+  if (wl > 0 )
+  {
+    motor_L(255);
+  } else if (wl < 0)
+  {
+    motor_L(-255);
+  } else
+  {
+    motor_L(0);
+  }
+
+}
 
 void loop() {
   second_mark = millis();
@@ -158,9 +137,8 @@ void loop() {
     v_a = 0.00;
   }
 
-  motors_control(v_l, v_a); //aplica os valores para os motores
+  motors_control(v_l, v_a);
 }
-
 
 void parseData(){
     char * strtokIndx;
