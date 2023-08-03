@@ -8,6 +8,8 @@ Date: 30/06/2023
 import numpy as np
 import math
 
+from util import util
+
 def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
     return angular_velocity * decay_rate
 
@@ -50,14 +52,16 @@ class Robot():
         else:
             _team_color = 'robotsYellow'
 
-        robots = frame.get('detection').get(_team_color)
-        for robot in robots:
-            if robot.get('robotId') == self.robot_id:
-                self.position = [
-                    robot.get('x', 0),
-                    robot.get('y', 0),
-                    robot.get('orientation', 0)
-                ]
+        if frame.get('detection').get(_team_color) != None:
+
+            robots = frame.get('detection').get(_team_color)
+            for robot in robots:
+                if robot.get('robotId') == self.robot_id:
+                    self.position = [
+                        robot.get('x', 0),
+                        robot.get('y', 0),
+                        robot.get('orientation', 0)
+                    ]
         
     def printInfo(self):
         print('-----------------------------')
@@ -65,25 +69,42 @@ class Robot():
         print(self.velocity)
         print('-----------------------------')
         
-    def clever_trick(self, vector_speed: list[float]) -> list[float]:
+    def clever_trick(self, vector_speed: list[float], consider_back: bool = False) -> list[float]:
         """
-        Gives the wheels angular speed based on a speed vector using the clever trick expression.
+        This function determines the required angular velocity for each wheel to follow the vector speed.
 
         Args:
             vector_speed (Vector): An array [dx, dy]
+            consider_back (bool): True to consider the robot's back, False for not
 
         Returns:
-            wl, wr: Floats, where wl is the left wheel angular velocity and wr is right wheel angular velocity.
+            list[float]: An array [wl, wr] where wl is the left wheel angular velocity and wr is right wheel angular velocity.
         """
         
         #proporcional angular
         n = (1/0.185)
         
-        theta = apply_angular_decay(self.position.theta, 1)
+        theta = util.apply_angular_decay(self.position[2], 1) 
+        
         v = vector_speed[0] * math.cos(-theta) - vector_speed[1] * math.sin(-theta)
         w = n * (vector_speed[0] * math.sin(-theta) + vector_speed[1] * math.cos(-theta))
+        
+        if consider_back:
+            
+            desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
+            desired_angle_deg = util.convertTodeg(desired_angle_rad)
+            
+            robot_angle_rad = self.position[2]
+            robot_angle_deg = util.convertTodeg(robot_angle_rad)
+            robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
+            
+            angle_error_1 = desired_angle_deg - robot_angle_deg
+            angle_error_2 = desired_angle_deg - robot_angle_deg_inverted
+            
+            if abs(angle_error_2) < abs(angle_error_1):
+                w *= -1
 
-        wl = (2 * v - w * self.L)/2 * self.R
-        wr = (2 * v + w * self.L)/2 * self.R
-
-        return wl, wr
+        wl = -1 * (2 * v - w * self.L)/2 * self.R
+        wr = -1 * (2 * v + w * self.L)/2 * self.R
+        
+        return [wl, wr]

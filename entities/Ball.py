@@ -25,8 +25,9 @@ class Ball():
         Updates the ball own state
         """
 
-        ball_frame = frame.get('detection')['balls'][0]
-        self.position = [
-            ball_frame.get('x', 0),
-            ball_frame.get('y', 0)
-        ]
+        if frame:
+            ball_frame = frame.get('detection')['balls'][0]
+            self.position = [
+                ball_frame.get('x', 0),
+                ball_frame.get('y', 0)
+            ]

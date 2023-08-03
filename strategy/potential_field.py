@@ -52,7 +52,7 @@ class PointField():
         """
 
         to_target = [
-            np.subtract(self.home_point, robot.position)
+            self.home_point[0] - robot.position[0], self.home_point[1] - robot.position[1]
         ]
 
         to_target_scalar = np.linalg.norm(to_target)

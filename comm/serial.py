@@ -1,5 +1,5 @@
 import os
-import serial
+from serial import Serial
 import utils.util as util
 
 class SerialComm(object):
@@ -12,7 +12,7 @@ class SerialComm(object):
 
     def start(self):
         print("Starting communication...")
-        self.comm = serial.Serial(self.command_port, self.baud_rate)
+        self.comm = Serial(self.command_port, self.baud_rate)
         print(f"Communication port created on {self.command_port}!")
     
     def send(self, robot_commands = []):
