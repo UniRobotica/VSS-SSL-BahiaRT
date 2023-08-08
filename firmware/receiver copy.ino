@@ -2,11 +2,12 @@
 
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include <WiFi.h>
+
+#define MAX_PWM 200
 
 #define PWMA 15
-#define A1 2
-#define B1 4
+#define A1 4
+#define B1 2
 
 #define PWMB 13
 #define A2 12 
@@ -67,28 +68,29 @@ void motor_L(int speedL) {
 
 
 void motors_control(float wl, float wr) {
-  if (wr > 255)
+    if (wr > 0)
   {
-    motor_R(255);
-  } else if (wr < -255)
+    motor_R(MAX_PWM);
+  }
+   if (wr < 0)
   {
-    motor_R(-255);
-  } else
-  {
-    motor_R(wr);
+    motor_R(-MAX_PWM);
   }
 
-  if (wl > 255)
+   if (wl > 0)
   {
-    motor_L(255);
-  } else if (wl < -255)
+    motor_L(MAX_PWM);
+  }
+   if (wl < 0)
   {
-    motor_L(-255);
-  } else
-  {
-    motor_L(wl);
+    motor_L(-MAX_PWM);
   }
 
+  if (wl == 0 && wr == 0)
+  {
+    motor_L(0);
+    motor_R(0);
+  }
 }
 
 // Funções do motores ----------------------------------------
@@ -155,7 +157,6 @@ void setup() {
   }
 
   esp_now_register_recv_cb(OnDataRecv);
-  
 }
 
 void loop() {
@@ -166,55 +167,13 @@ void loop() {
   parseData();
 
   // Protegendo o robô após a perda de informação
-  v_l = 0.00;
   if (second_mark - first_mark > 500) {
+    v_l = 0.00;
     v_a = 0.00;
   }
 
-  // Calculando as velocidades dos motores para trajetória curva
-  float angular = 0.5; // multiplicador para o grau de curvatura (fazer testes), se maior curva mais acentuada, menor será mais suave
-  
-  // Calculando as velocidades dos motores ajustadas para curva **
-  float Vel_L = v_l + v_a * angular;
-  float Vel_R = v_l - v_a * angular;
-
-  // Limitando as velocidades dos motores para evitar altos valores **
-  if (Vel_L > 255) {
-    Vel_L = 255;
-  } else if (Vel_L < -255) {
-    Vel_L = -255;
-  }
-
-  if (Vel_R > 255) {
-    Vel_R = 255;
-  } else if (Vel_R < -255) {
-    Vel_R = -255;
-  }
-
   // Executando o controle dos motores
-  motor_L(Vel_L);
-  motor_R(Vel_R);
+  motors_control(v_l, v_a);
 }
 
-
-
-//************************************************************************************************************
-//Parte da Neon
-//angular = pid(angular, - get_theta_speed()); - pid e a orientação ??
-
-//if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
-//if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
-
-
-//float Vel_R = linear - angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
-//float Vel_L = linear + angular;
-
-//if (Vel_R < 15 && Vel_R > -15) Vel_R = 0; //se está entre -15 e 15 ele zera a vel do motor
-//if (Vel_R > 255 ) Vel_R = 255;
-//if (Vel_R < -255) Vel_R = -255;
-//if (Vel_L < 15 && Vel_L > -15) Vel_L = 0;
-//if (Vel_L > 255 ) Vel_L = 255;
-//if (Vel_L < -255) Vel_L = -255;
-//************************************************************************************************************
-
-
+    
