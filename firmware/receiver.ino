@@ -2,7 +2,6 @@
 
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include <WiFi.h>
 
 #define MAX_PWM 200
 
@@ -158,7 +157,8 @@ void setup() {
   }
 
   esp_now_register_recv_cb(OnDataRecv);
-  
+}
+
 void loop() {
   second_mark = millis();
 
