@@ -30,7 +30,7 @@ if __name__ == '__main__':
     
     while True:
 
-        time.sleep(0.003) # Necessário para o recebiemnto correto da informação da visão
+        time.sleep(0.003) # Necessário para o recebimento correto da informação da visão
         
         if vision_rl.frame.get('detection', None) != None:
             
