@@ -4,9 +4,11 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
+#define MAX_PWM 200
+
 #define PWMA 15
-#define A1 2
-#define B1 4
+#define A1 4
+#define B1 2
 
 #define PWMB 13
 #define A2 12 
@@ -67,28 +69,29 @@ void motor_L(int speedL) {
 
 
 void motors_control(float wl, float wr) {
-  if (wr > 255)
+    if (wr > 0)
   {
-    motor_R(255);
-  } else if (wr < -255)
+    motor_R(MAX_PWM);
+  }
+   if (wr < 0)
   {
-    motor_R(-255);
-  } else
-  {
-    motor_R(wr);
+    motor_R(-MAX_PWM);
   }
 
-  if (wl > 255)
+   if (wl > 0)
   {
-    motor_L(255);
-  } else if (wl < -255)
+    motor_L(MAX_PWM);
+  }
+   if (wl < 0)
   {
-    motor_L(-255);
-  } else
-  {
-    motor_L(wl);
+    motor_L(-MAX_PWM);
   }
 
+  if (wl == 0 && wr == 0)
+  {
+    motor_L(0);
+    motor_R(0);
+  }
 }
 
 // Funções do motores ----------------------------------------
@@ -157,7 +160,7 @@ void setup() {
   esp_now_register_recv_cb(OnDataRecv);
   
 }
-
+e 
 void loop() {
   second_mark = millis();
 
@@ -166,8 +169,8 @@ void loop() {
   parseData();
 
   // Protegendo o robô após a perda de informação
-    v_l = 0.00;
   if (second_mark - first_mark > 500) {
+    v_l = 0.00;
     v_a = 0.00;
   }
 
@@ -175,3 +178,4 @@ void loop() {
   motors_control(v_l, v_a);
 }
 
+    
