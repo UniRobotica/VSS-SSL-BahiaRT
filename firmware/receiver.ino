@@ -159,8 +159,6 @@ void setup() {
 
   esp_now_register_recv_cb(OnDataRecv);
   
-}
-e 
 void loop() {
   second_mark = millis();
 
