@@ -1,20 +1,10 @@
-// Código para o recebimento de informações e controle do robô
+// Código para o recebimento de informações
 
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-#define MAX_PWM 200
-
-#define PWMA 15
-#define A1 4
-#define B1 2
-
-#define PWMB 13
-#define A2 12 
-#define B2 14
-
 // Definindo variáveis ------------------------------------------
-int robot_id = 0; // ATENÇÃO: Mudar o id de acordo com o robô
+int robot_id = 0;
 
 int id;
 int first_mark = 0, second_mark;
@@ -39,61 +29,6 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   first_mark = millis();
   strcpy(commands, rcv_commands.message);
 }
-
-
-// Funções do motores -------------------------------------------
-
-void motor_R(int speedR) {
-  if (speedR > 0) {
-    digitalWrite(A1, 1);
-    digitalWrite(B1, 0);
-  } else {
-    digitalWrite(A1, 0);
-    digitalWrite(B1, 1);
-  }
-  ledcWrite(1, abs(speedR));
-}
-
-
-void motor_L(int speedL) {
-  if (speedL > 0) {
-    digitalWrite(A2, 1);
-    digitalWrite(B2, 0);
-  } else {
-    digitalWrite(A2, 0);
-    digitalWrite(B2, 1);
-  }
-  ledcWrite(2, abs( speedL));
-}
-
-
-void motors_control(float wl, float wr) {
-    if (wr > 0)
-  {
-    motor_R(MAX_PWM);
-  }
-   if (wr < 0)
-  {
-    motor_R(-MAX_PWM);
-  }
-
-   if (wl > 0)
-  {
-    motor_L(MAX_PWM);
-  }
-   if (wl < 0)
-  {
-    motor_L(-MAX_PWM);
-  }
-
-  if (wl == 0 && wr == 0)
-  {
-    motor_L(0);
-    motor_R(0);
-  }
-}
-
-// Funções do motores ----------------------------------------
 
 void parseData(){
     char * strtokIndx;
@@ -122,23 +57,6 @@ void parseData(){
 // Setup e loop --------------------------------------------------
 
 void setup() {
-  
-  // Configuração de pinos para PWM
-  ledcAttachPin(PWMA, 1);
-  ledcAttachPin(PWMB, 2);
-
-  ledcSetup(1, 80000, 8);
-  ledcSetup(2, 80000, 8);
-
-  // Configuração de pinos
-  pinMode(A1, OUTPUT);
-  pinMode(A2, OUTPUT);
-  pinMode(B1, OUTPUT);
-  pinMode(B2, OUTPUT);
-  digitalWrite(A1, 0);
-  digitalWrite(A2, 0);
-  digitalWrite(B1, 0);
-  digitalWrite(B2, 0);
 
   // Configurações comunicação ESP-NOW
 
@@ -166,14 +84,8 @@ void loop() {
   strcpy(tempChars, commands);
   parseData();
 
-  // Protegendo o robô após a perda de informação
   if (second_mark - first_mark > 500) {
     v_l = 0.00;
     v_a = 0.00;
   }
-
-  // Executando o controle dos motores
-  motors_control(v_l, v_a);
 }
-
-    

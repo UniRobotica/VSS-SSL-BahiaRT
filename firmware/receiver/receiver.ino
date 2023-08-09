@@ -93,7 +93,7 @@ void motors_control(float wl, float wr) {
   }
 }
 
-// Funções do motores ----------------------------------------
+// Tratamento de string ----------------------------------------
 
 void parseData(){
     char * strtokIndx;
