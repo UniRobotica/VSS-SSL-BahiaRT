@@ -41,8 +41,8 @@ if __name__ == '__main__':
             pot_field.home_point = ball.position
             
             # Calculando velocidades angulares das rodas do robô
-            wl, wr = robot_blue.clever_trick(
-                pot_field.getForce(robot_blue, 10000),
+            wl, wr = robot_blue.wheels_speed(
+                pot_field.getForce(robot_blue.position, 10000),
                 consider_back=True
             )
             

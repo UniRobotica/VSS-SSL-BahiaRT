@@ -5,8 +5,6 @@ Created by: - Luís Henrique
 Date: 15/06/2023
 '''
 
-from vision.vision import Vision
-
 class Ball():
     """
     Contains the ball state
@@ -14,12 +12,11 @@ class Ball():
 
     def __init__(
         self,
-        position: list[float] = [],
-        velocity: list[float] = [],
     ) -> None:
-        self.position = position
-        self.velocity = velocity
-
+        
+        self.position = 0
+        self.velocity = 0
+        
     def update(self, frame) -> None:
         """
         Updates the ball own state

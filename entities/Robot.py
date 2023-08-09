@@ -8,7 +8,7 @@ Date: 30/06/2023
 import numpy as np
 import math
 
-from util import util
+from utils import util
 
 def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
     return angular_velocity * decay_rate
@@ -19,7 +19,7 @@ def detect_ball_proximity(ball_position: list[float], robot_position: list[float
 
 class Robot():
     '''
-    A base class that contains the state of the robot and basic movement methods for all game positions.
+    A base class that contains the robot state and basic movement methods.
     '''
     # Robot length(L) and radius(R)
     L = 0.075
@@ -27,15 +27,16 @@ class Robot():
 
     def __init__(
         self,
-        position: list[float] = [],
-        velocity: list[float] = [],
         robot_id: int = 0,
         team_color: bool = True # True: blue_team | False: yellow_team
     ) -> None:
+        
         self.robot_id = robot_id
         self.team_color = team_color
-        self.position = position
-        self.velocity = velocity
+        
+        self.position = [.0,.0]
+        self.orientation = .0
+        self.velocity = [.0,.0]
 
     def team_color_str(self) -> str:
         if self.team_color:
@@ -55,21 +56,22 @@ class Robot():
         if frame.get('detection').get(_team_color) != None:
 
             robots = frame.get('detection').get(_team_color)
+            
             for robot in robots:
                 if robot.get('robotId') == self.robot_id:
                     self.position = [
                         robot.get('x', 0),
                         robot.get('y', 0),
-                        robot.get('orientation', 0)
                     ]
+                    self.orientation = robot.get('orientation', 0)
         
     def printInfo(self):
-        print('-----------------------------')
-        print(self.position)
-        print(self.velocity)
-        print('-----------------------------')
+        print(' ')
+        print('POS: ' + self.position)
+        print('V: ' + self.velocity)
+        print(' ')
         
-    def clever_trick(self, vector_speed: list[float], consider_back: bool = False) -> list[float]:
+    def wheels_speed(self, vector_speed: list[float], consider_back: bool = False) -> list[float]:
         """
         This function determines the required angular velocity for each wheel to follow the vector speed.
 
@@ -84,17 +86,17 @@ class Robot():
         #proporcional angular
         n = (1/0.185)
         
-        theta = util.apply_angular_decay(self.position[2], 1) 
+        theta = util.apply_angular_decay(self.orientation, 1) 
         
         v = vector_speed[0] * math.cos(-theta) - vector_speed[1] * math.sin(-theta)
-        w = n * (vector_speed[0] * math.sin(-theta) + vector_speed[1] * math.cos(-theta))
+        w = -n * (vector_speed[0] * math.sin(-theta) + vector_speed[1] * math.cos(-theta))
         
         if consider_back:
             
             desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
             desired_angle_deg = util.convertTodeg(desired_angle_rad)
             
-            robot_angle_rad = self.position[2]
+            robot_angle_rad = self.orientation
             robot_angle_deg = util.convertTodeg(robot_angle_rad)
             robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
             
@@ -104,7 +106,7 @@ class Robot():
             if abs(angle_error_2) < abs(angle_error_1):
                 w *= -1
 
-        wl = -1 * (2 * v - w * self.L)/2 * self.R
-        wr = -1 * (2 * v + w * self.L)/2 * self.R
+        wl = (2 * v - w * self.L)/2 * self.R
+        wr = (2 * v + w * self.L)/2 * self.R
         
         return [wl, wr]
