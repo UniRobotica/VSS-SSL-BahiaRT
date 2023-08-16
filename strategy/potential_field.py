@@ -56,7 +56,7 @@ class PointField():
         if self.type:
 
             to_target = [
-                self.home_point[0] - target_position[0], self.home_point[1] - target_position[1]
+                - self.home_point[0] + target_position[0], - self.home_point[1] + target_position[1]
             ]
 
             to_target_scalar = np.linalg.norm(to_target)
