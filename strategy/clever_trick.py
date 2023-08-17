@@ -7,15 +7,12 @@ class CleverTrick():
     def __init__(
         self,
         consider_back=True,
-        force=2000
+        force=1
     ) -> None:
         
         self.consider_back = consider_back
         self.force = force
-    
-    def set_desired(self, desired_speed: list[float]):
-        
-        self.desired_speed = desired_speed
+        self.desired_speed = [.0, .0]
         
     def control(self, robot: Robot):
         
@@ -25,7 +22,7 @@ class CleverTrick():
         theta = util.apply_angular_decay(robot.orientation, 1) 
         
         v = self.desired_speed[0] * math.cos(-theta) - self.desired_speed[1] * math.sin(-theta)
-        w = -n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
+        w = n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
         
         if self.consider_back:
             
@@ -49,7 +46,7 @@ class CleverTrick():
     
     def update(self, robot: Robot):
         
-        self.set_desired = robot.desired_speed
+        self.desired_speed = robot.desired_speed
         wl, wr = self.control(robot)
         
         return wl * self.force, wr * self.force

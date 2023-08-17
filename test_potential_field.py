@@ -32,7 +32,7 @@ from strategy import clever_trick
 # Criando entidades
 
 robot = Robot(
-    clever_trick.CleverTrick(),
+    clever_trick.CleverTrick(consider_back=False),
     env=args.env,
     team_color=True,   
 )
@@ -42,6 +42,15 @@ ball = Ball(
 
 # Inicializando comunicação
 vision.start()
+
+# Criando campo potencial
+from strategy import potential_field
+
+pot_field = potential_field.AttractivePointField(
+    ball.position,
+    lambda x:1,
+    max_radius=2
+)
 
 if __name__ == '__main__':
     
@@ -61,9 +70,15 @@ if __name__ == '__main__':
                 robot.update(vision.frame)
                 ball.update(vision.frame)
                 
-                #Exemplo de comando
-                desired_speed = [100, 100]
-                robot.set_desired()
+                #Campo potencial
+                pot_field.update(ball.position)
+                robot.set_desired(
+                    pot_field.getForce(robot.position, 2000)
+                )
+                
+                print('wl:',robot.wl)
+                print('wr:',robot.wr)
+                print(' ')
                 
                 # Enviando informações via Serial
                 if args.env == 'real':

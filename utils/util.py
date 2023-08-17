@@ -5,6 +5,7 @@ Created by: - Luís Henrique
 Date: 15/06/2023
 '''
 
+import math
 import numpy as np
 
 def unit_vector(vector: list[float]) -> list[float]:
@@ -36,3 +37,7 @@ def add_deg(deg1:float, deg2: float) -> float:
         return result - 360
     
     return result
+
+def angleBetweenTwoPoints(p1: list[float], p2: list[float]) -> float:
+    
+    return math.atan2(p2[1] - p1[1], p2[0] - p1[0])
