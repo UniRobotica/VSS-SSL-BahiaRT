@@ -1,6 +1,3 @@
-from entities.Ball import Ball
-from entities.Robot import Robot
-
 import time
 import argparse
 
@@ -28,12 +25,14 @@ else:
     
     from vision import visionSim
 
+    # Criando comunicação com a visão
     vision = visionSim.VisionSim()
 
 vision.start() # Inicializando comunicação com a visão
 
 # Criando entidades ---------------------------------------------------------
 
+from entities.Robot import Robot
 from strategy import clever_trick
 
 robot = Robot(
