@@ -5,15 +5,21 @@ Created by: - Luís Henrique
 Date: 30/06/2023
 '''
 
-from .Entity import Entity
-from geometry.Point import Point
-from geometry.Vector import Vector
-from geometry.Pose import Pose
-from game.Game import Game
+import numpy as np
+import math
 
-class Robot(Entity):
+from utils import util
+
+def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
+    return angular_velocity * decay_rate
+
+def detect_ball_proximity(ball_position: list[float], robot_position: list[float]) -> float:
+    distance = np.linalg.norm(np.array(ball_position) - np.array(robot_position))
+    return distance
+
+class Robot():
     '''
-    A base class that contains the state of the robot and basic movement methods for all game positions.
+    A base class that contains the robot state and basic movement methods.
     '''
     # Robot length(L) and radius(R)
     L = 0.075
@@ -21,16 +27,16 @@ class Robot(Entity):
 
     def __init__(
         self,
-        game: Game,
-        position: Pose = Pose(),
-        velocity: Vector = Vector(),
         robot_id: int = 0,
         team_color: bool = True # True: blue_team | False: yellow_team
     ) -> None:
-        super().__init__(position, velocity)
-        self.game = game
+        
         self.robot_id = robot_id
         self.team_color = team_color
+        
+        self.position = [.0,.0]
+        self.orientation = .0
+        self.velocity = [.0,.0]
 
     def team_color_str(self) -> str:
         if self.team_color:
@@ -38,25 +44,69 @@ class Robot(Entity):
         else:
             return 'yellow'
 
-    def update(self) -> None:
+    def update(self, frame) -> None:
         """
         Updates the robot's own state
         """
         if self.team_color:
-            _team_color = "robotsBlue"
+            _team_color = 'robotsBlue'
         else:
-            _team_color = "robotsYellow"
+            _team_color = 'robotsYellow'
 
-        info = self.game.blueRobot_info(self.robot_id)
-        self.position = Pose(
-            info.get('x', 0),
-            info.get('y', 0),
-            info.get('orientation', 0)
-        )
-        self.linear_velocity = Vector(0,0)
+        if frame.get('detection').get(_team_color) != None:
+
+            robots = frame.get('detection').get(_team_color)
+            
+            for robot in robots:
+                if robot.get('robotId') == self.robot_id:
+                    self.position = [
+                        robot.get('x', 0),
+                        robot.get('y', 0),
+                    ]
+                    self.orientation = robot.get('orientation', 0)
         
     def printInfo(self):
-        print('-----------------------------')
-        print(self.position)
-        print(self.velocity)
-        print('-----------------------------')
+        print(' ')
+        print('POS: ' + self.position)
+        print('V: ' + self.velocity)
+        print(' ')
+        
+    def wheels_speed(self, vector_speed: list[float], consider_back: bool = False) -> list[float]:
+        """
+        This function determines the required angular velocity for each wheel to follow the vector speed.
+
+        Args:
+            vector_speed (Vector): An array [dx, dy]
+            consider_back (bool): True to consider the robot's back, False for not
+
+        Returns:
+            list[float]: An array [wl, wr] where wl is the left wheel angular velocity and wr is right wheel angular velocity.
+        """
+        
+        #proporcional angular
+        n = (1/0.185)
+        
+        theta = util.apply_angular_decay(self.orientation, 1) 
+        
+        v = vector_speed[0] * math.cos(-theta) - vector_speed[1] * math.sin(-theta)
+        w = -n * (vector_speed[0] * math.sin(-theta) + vector_speed[1] * math.cos(-theta))
+        
+        if consider_back:
+            
+            desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
+            desired_angle_deg = util.convertTodeg(desired_angle_rad)
+            
+            robot_angle_rad = self.orientation
+            robot_angle_deg = util.convertTodeg(robot_angle_rad)
+            robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
+            
+            angle_error_1 = desired_angle_deg - robot_angle_deg
+            angle_error_2 = desired_angle_deg - robot_angle_deg_inverted
+            
+            if abs(angle_error_2) < abs(angle_error_1):
+                w *= -1
+
+        wl = (2 * v - w * self.L)/2 * self.R
+        wr = (2 * v + w * self.L)/2 * self.R
+        
+        return [wl, wr]
