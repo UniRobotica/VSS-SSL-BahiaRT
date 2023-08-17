@@ -5,24 +5,12 @@
         "host_ip": "localhost",
         "blue_port": 30011,
         "yellow_port": 30012,
-        "vision_port": 10005,
+        "vision_port": 10015,
         "command_port": 20011,
-        "replacer_port": 10004,
-    },
-    "match" : {
-        "team_side": "left",
-        "team_color": "yellow",
-        "coach_name": "RSM_2023",
-        "category": "3v3",
-        "robot_ids": [
-            1,
-            2,
-            3
-        ]
+        "replacer_port": 10004
     },
     "comm": {
         "comm_port": "/dev/ttyUSB0",
         "baud_rate": 115200
-    },
-    "referee": false,
+    }
 }

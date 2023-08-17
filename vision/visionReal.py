@@ -3,19 +3,22 @@ import struct
 import json
 import time
 import threading
-from collections import deque
+
 from google.protobuf.json_format import MessageToJson
 from protocols.ssl_vision import messages_robocup_ssl_wrapper_pb2
 
-class Vision(threading.Thread):
-    def __init__(self):
-        super(Vision, self).__init__()
+from utils import config
 
-        self.frame = {}
-        self.last_frame = {}
+class VisionReal(threading.Thread):
+    def __init__(self):
+        super(VisionReal, self).__init__()
         
-        self.vision_port = 10015
-        self.host = '224.5.23.2'
+        real_config = config.get_config('real_life_config.json')['network']
+        
+        self.vision_port = real_config['vision_port']
+        self.host        = real_config['multicast_ip']
+        self.frame       = None
+        self.last_frame  = None
 
     def run(self):
         print("Starting vision...")
@@ -62,7 +65,7 @@ class Vision(threading.Thread):
         return sock
 
 if __name__ == "__main__":
-    v = Vision()
+    v = VisionReal()
 
     v.start()
 
