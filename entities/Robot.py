@@ -10,23 +10,16 @@ import math
 
 from utils import util
 
-def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
-    return angular_velocity * decay_rate
-
-def detect_ball_proximity(ball_position: list[float], robot_position: list[float]) -> float:
-    distance = np.linalg.norm(np.array(ball_position) - np.array(robot_position))
-    return distance
-
 class Robot():
-    '''
-    A base class that contains the robot state and basic movement methods.
-    '''
+    
     # Robot length(L) and radius(R)
     L = 0.075
     R = 0.02
 
     def __init__(
         self,
+        control: object,
+        env: str = 'simulation',
         robot_id: int = 0,
         team_color: bool = True # True: blue_team | False: yellow_team
     ) -> None:
@@ -34,15 +27,23 @@ class Robot():
         self.robot_id = robot_id
         self.team_color = team_color
         
+        self.control = control
+        self.env = env
+        
         self.position = [.0,.0]
         self.orientation = .0
-        self.velocity = [.0,.0]
+        
+        self.wl, self.wr = 0, 0
+        self.desired_speed = [.0,.0]
 
     def team_color_str(self) -> str:
         if self.team_color:
             return 'blue'
         else:
             return 'yellow'
+    
+    def set_desired(self, desired_speed):
+        self.desired_speed = desired_speed
 
     def update(self, frame) -> None:
         """
@@ -53,60 +54,21 @@ class Robot():
         else:
             _team_color = 'robotsYellow'
 
-        if frame.get('detection').get(_team_color) != None:
-
-            robots = frame.get('detection').get(_team_color)
+        if self.env == 'real':
+            frame = frame.get('detection')
+        
+        for robot in frame[_team_color]:
+            if robot.get('robotId') == self.robot_id:
+                self.position = [
+                    robot.get('x', 0),
+                    robot.get('y', 0),
+                ]
+                self.orientation = robot.get('orientation', 0)
             
-            for robot in robots:
-                if robot.get('robotId') == self.robot_id:
-                    self.position = [
-                        robot.get('x', 0),
-                        robot.get('y', 0),
-                    ]
-                    self.orientation = robot.get('orientation', 0)
+        self.control.update(self)
         
     def printInfo(self):
         print(' ')
         print('POS: ' + self.position)
-        print('V: ' + self.velocity)
+        print('THETA: ' + self.orientation)
         print(' ')
-        
-    def wheels_speed(self, vector_speed: list[float], consider_back: bool = False) -> list[float]:
-        """
-        This function determines the required angular velocity for each wheel to follow the vector speed.
-
-        Args:
-            vector_speed (Vector): An array [dx, dy]
-            consider_back (bool): True to consider the robot's back, False for not
-
-        Returns:
-            list[float]: An array [wl, wr] where wl is the left wheel angular velocity and wr is right wheel angular velocity.
-        """
-        
-        #proporcional angular
-        n = (1/0.185)
-        
-        theta = util.apply_angular_decay(self.orientation, 1) 
-        
-        v = vector_speed[0] * math.cos(-theta) - vector_speed[1] * math.sin(-theta)
-        w = -n * (vector_speed[0] * math.sin(-theta) + vector_speed[1] * math.cos(-theta))
-        
-        if consider_back:
-            
-            desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
-            desired_angle_deg = util.convertTodeg(desired_angle_rad)
-            
-            robot_angle_rad = self.orientation
-            robot_angle_deg = util.convertTodeg(robot_angle_rad)
-            robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
-            
-            angle_error_1 = desired_angle_deg - robot_angle_deg
-            angle_error_2 = desired_angle_deg - robot_angle_deg_inverted
-            
-            if abs(angle_error_2) < abs(angle_error_1):
-                w *= -1
-
-        wl = (2 * v - w * self.L)/2 * self.R
-        wr = (2 * v + w * self.L)/2 * self.R
-        
-        return [wl, wr]

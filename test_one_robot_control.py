@@ -2,13 +2,13 @@ from strategy import potential_field
 from entities.Ball import Ball
 from entities.Robot import Robot
 
-from vision import vision
+from vision import visionReal
 from comm import serial
 
 import time
 
 # Criando comunicação
-vision_rl = vision.Vision()
+vision_rl = visionReal.Vision()
 serial_comm = serial.SerialComm()
 
 # Criando entidades

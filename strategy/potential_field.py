@@ -8,19 +8,8 @@ Date: 15/06/2023
 import numpy as np
 from types import FunctionType
 
+from utils import util
 from entities.Robot import Robot
-
-def unit_vector(vector: list[float]) -> list[float]:
-    """
-    Calculates the vector normalization and, from that, calculates the unit vector.
-
-    Returns:
-        list[float]: An unit vector [x, y]
-    """
-    
-    if np.linalg.norm(vector) == 0:
-        return np.array([0, 0])
-    return vector / np.linalg.norm(vector)
 
 class PointField():
     """
@@ -63,7 +52,7 @@ class PointField():
             to_target_scalar_norm = max(0, min(1, to_target_scalar/self.max_radius))
             
             force = self.decay(to_target_scalar_norm)
-            to_target_norm = unit_vector(to_target)
+            to_target_norm = util.unit_vector(to_target)
             
             return [
                     to_target_norm[0] * force * speed,

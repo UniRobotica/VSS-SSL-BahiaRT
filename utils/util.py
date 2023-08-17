@@ -7,6 +7,18 @@ Date: 15/06/2023
 
 import numpy as np
 
+def unit_vector(vector: list[float]) -> list[float]:
+    """
+    Calculates the vector normalization and, from that, calculates the unit vector.
+
+    Returns:
+        list[float]: An unit vector [x, y]
+    """
+    
+    if np.linalg.norm(vector) == 0:
+        return np.array([0, 0])
+    return vector / np.linalg.norm(vector)
+
 def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
     return angular_velocity * decay_rate
 
