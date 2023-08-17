@@ -8,7 +8,6 @@
         "vision_port": 10005,
         "command_port": 20011,
         "replacer_port": 10004,
-        "referee_port": 10003
     },
     "match" : {
         "team_side": "left",
@@ -26,5 +25,4 @@
         "baud_rate": 115200
     },
     "referee": false,
-    "data_sender": false
 }
