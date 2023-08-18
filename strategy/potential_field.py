@@ -25,9 +25,9 @@ CONSTANTS = {
 }
 
 class AttractivePointField():
-    """
-    Represents a potential field that has a point as the origin
-    """
+    '''
+    Um campo potencial de atração originário de um único ponto.
+    '''
     
     def __init__(
         self,
@@ -69,6 +69,9 @@ class AttractivePointField():
             pass
 
 class HyperbolicField():
+    '''
+    Um campo potencial hiperbólico que pode ter uma força de sentido horário ou anti-horário.
+    '''    
     
     def __init__(
         self, 
@@ -89,7 +92,7 @@ class HyperbolicField():
     def getForce(self, object_pos: list[float], force_multiply: float=1.0) -> list[float]:
         
         theta = util.angleBetweenTwoPoints(self.home_pos, object_pos)
-        p = (object_pos[1] - self.home_pos[1])**2 + (object_pos[0] - self.home_pos[1])**2
+        p = util.distanceBetweenTwoPoints(self.home_pos, object_pos)
         
         if p > self.radius:
             theta_d = theta + self.direction * (math.pi/2 * (2 - (self.radius + self.kp)/(p + self.kp)))
@@ -100,6 +103,9 @@ class HyperbolicField():
         return math.cos(theta_d) * force_multiply, math.sin(theta_d) * force_multiply
     
 class RepulsivePointField():
+    '''
+    Um campo potencial de atração originário de um único ponto.
+    '''
     
     def __init__(
         self, 
@@ -120,7 +126,7 @@ class RepulsivePointField():
         if self.range == 0:
             return math.cos(theta) * force_multiply, math.sin(theta) * force_multiply
         else:
-            p = (object_pos[1] - self.home_pos[1])**2 + (object_pos[0] - self.home_pos[1])**2
+            p = util.distanceBetweenTwoPoints(self.home_pos, object_pos)
             
             if p <= self.range:
                 return math.cos(theta) * force_multiply, math.sin(theta) * force_multiply
@@ -128,4 +134,53 @@ class RepulsivePointField():
                 return 0,0
 
 class MoveToGoalField():
-    pass
+    '''
+    Um campo potencial de atração originário de um único ponto, que objetiva fazer com que o robô chegue ao objeto com a orientação correta.
+    '''
+    
+    def __init__(
+        self, 
+        home_pos: list[float],
+        radius: float,
+    ) -> None:
+        
+        self.home_pos = home_pos
+        self.radius = radius
+        self.hyperbolic_field_cw = HyperbolicField(
+            home_pos=self.home_pos,
+            radius=self.radius,
+            direction=1
+        )
+        self.hyperbolic_field_ccw = HyperbolicField(
+            home_pos=self.home_pos,
+            radius=self.radius,
+            direction=-1
+        )
+        
+    def update(self, home_pos):
+      
+        self.home_pos = home_pos
+    
+    def getForce(self, object_pos: list[float], force_multiply: float=1.0) -> list[float]:
+        
+        yl = object_pos[1] + self.radius
+        yr = object_pos - self.radius
+        
+        if object_pos[1] < self.radius and object_pos[1] >= -self.radius:
+            
+            v_theta_ccw = self.hyperbolic_field_ccw.getForce([object_pos[0], yl])
+            v_theta_cw = self.hyperbolic_field_cw.getForce([object_pos[0], yr])
+            
+            x = (yl * v_theta_ccw + yr * v_theta_cw) / 2 * self.radius
+        
+            #to implement
+            
+        if object_pos[1] < -self.radius:
+            
+            self.hyperbolic_field_cw.update(self.home_pos)
+            return self.hyperbolic_field_ccw.getForce([object_pos[0], yr])
+            
+        if object_pos[1] >= self.radius:
+            
+            self.hyperbolic_field_ccw.update(self.home_pos)
+            return self.hyperbolic_field_ccw.getForce([object_pos[0], yl])
