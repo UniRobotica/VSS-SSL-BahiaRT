@@ -168,8 +168,11 @@ class MoveToGoalField():
         
         if object_pos[1] < self.radius and object_pos[1] >= -self.radius:
             
-            v_theta_ccw = self.hyperbolic_field_ccw.getForce([object_pos[0], yl])
-            v_theta_cw = self.hyperbolic_field_cw.getForce([object_pos[0], yr])
+            self.hyperbolic_field_cw.update(self.home_pos)
+            self.hyperbolic_field_ccw.update(self.home_pos)
+            
+            v_theta_ccw = self.hyperbolic_field_ccw.getForce([object_pos[0], yl], force_multiply)
+            v_theta_cw = self.hyperbolic_field_cw.getForce([object_pos[0], yr], force_multiply)
             
             x = (yl * v_theta_ccw + yr * v_theta_cw) / 2 * self.radius
         
@@ -178,9 +181,9 @@ class MoveToGoalField():
         if object_pos[1] < -self.radius:
             
             self.hyperbolic_field_cw.update(self.home_pos)
-            return self.hyperbolic_field_ccw.getForce([object_pos[0], yr])
+            return self.hyperbolic_field_ccw.getForce([object_pos[0], yr], force_multiply)
             
         if object_pos[1] >= self.radius:
             
             self.hyperbolic_field_ccw.update(self.home_pos)
-            return self.hyperbolic_field_ccw.getForce([object_pos[0], yl])
+            return self.hyperbolic_field_ccw.getForce([object_pos[0], yl], force_multiply)
