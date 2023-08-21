@@ -10,7 +10,7 @@
         "replacer_port": 10004
     },
     "comm": {
-        "comm_port": "/dev/ttyUSB0",
+        "comm_port": "/dev/ttyACM1",
         "baud_rate": 115200
     }
 }

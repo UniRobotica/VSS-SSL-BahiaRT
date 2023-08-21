@@ -34,7 +34,7 @@ from strategy import clever_trick
 robot = Robot(
     clever_trick.CleverTrick(consider_back=False),
     env=args.env,
-    team_color=True,   
+    team_color=False,   
 )
 ball = Ball(
     env=args.env
@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 #Campo potencial
                 pot_field.update(ball.position)
                 robot.set_desired(
-                    pot_field.getForce(robot.position, 2000)
+                    pot_field.getForce(robot.position, 10000)
                 )
                 
                 print('wl:',robot.wl)

@@ -22,7 +22,7 @@ class CleverTrick():
         theta = util.apply_angular_decay(robot.orientation, 1) 
         
         v = self.desired_speed[0] * math.cos(-theta) - self.desired_speed[1] * math.sin(-theta)
-        w = n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
+        w = - n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
         
         if self.consider_back:
             

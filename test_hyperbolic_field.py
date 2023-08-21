@@ -49,7 +49,7 @@ ball = Ball(
 from strategy import potential_field
 
 pot_field = potential_field.HyperbolicField(
-    ball.position,
+    [0, 0],
     0.025,
     direction=True
 )
@@ -74,9 +74,8 @@ if __name__ == '__main__':
                 ball.update(vision.frame)
                 
                 #Campo potencial
-                pot_field.update(ball.position)
                 robot.set_desired(
-                    pot_field.getForce(robot.position, 2000)
+                    pot_field.getForce(robot.position, 3000)
                 )
                 
                 print('wl:',robot.wl)

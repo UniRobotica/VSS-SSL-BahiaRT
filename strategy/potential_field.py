@@ -20,7 +20,7 @@ CONSTANTS = {
         'K_P': 0
     },
     'real_life': {
-        'K_P': 0
+        'K_P': 100
     }
 }
 
@@ -174,9 +174,7 @@ class MoveToGoalField():
             v_theta_ccw = self.hyperbolic_field_ccw.getForce([object_pos[0], yl], force_multiply)
             v_theta_cw = self.hyperbolic_field_cw.getForce([object_pos[0], yr], force_multiply)
             
-            x = (yl * v_theta_ccw + yr * v_theta_cw) / 2 * self.radius
-        
-            #to implement
+            return (yl * np.array(v_theta_ccw) + yr * np.array(v_theta_cw)) / 2 * self.radius
             
         if object_pos[1] < -self.radius:
             

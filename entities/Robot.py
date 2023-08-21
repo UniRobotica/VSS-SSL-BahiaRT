@@ -56,16 +56,21 @@ class Robot():
 
         if self.env == 'real':
             frame = frame.get('detection')
+
+        frame = frame.get(_team_color) if frame.get(_team_color) else None
         
-        for robot in frame[_team_color]:
-            if robot.get('robotId', 0) == self.robot_id:
-                self.position = [
-                    robot.get('x', 0),
-                    robot.get('y', 0),
-                ]
-                self.orientation = robot.get('orientation', 0)
-            
-        self.wl, self.wr = self.control.update(self)
+        if frame:
+            for robot in frame:
+                if robot.get('robotId', 0) == self.robot_id:
+                    self.position = [
+                        robot.get('x', 0),
+                        robot.get('y', 0),
+                    ]
+                    self.orientation = robot.get('orientation', 0)
+        
+            self.wl, self.wr = self.control.update(self)
+        
+        else: self.wl, self.wr = 0, 0
         
     def printInfo(self):
         print(' ')
