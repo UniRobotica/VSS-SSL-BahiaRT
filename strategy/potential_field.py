@@ -1,72 +1,31 @@
-'''
-Created by: - Luís Henrique
-            - Lucas
-
-Date: 15/06/2023
-'''
-
-import math
 import numpy as np
-from types import FunctionType
+import math
 
 from utils import util
 from entities.Robot import Robot
 
-'''
-K_P : Constante de ajuste
-'''
 CONSTANTS = {
     'simulation': {
-        'K_P': 0
+        'D_E': 0.05,
+        'K_P': 0,
+        'K_O': 0.0012,
+        'D_MIN': 0.0348,
+        'DELTA' : 0.0457
     },
-    'real_life': {
-        'K_P': 100
+    'real': {
+        'D_E': 0.1537,
+        'K_P': 0.0415,
+        'K_O': 0.0012,
+        'D_MIN': 0.0348,
+        'DELTA' : 0.0457
     }
 }
 
-class AttractivePointField():
-    '''
-    Um campo potencial de atração originário de um único ponto.
-    '''
-    
-    def __init__(
-        self,
-        home_pos: list[float], 
-        decay: FunctionType = lambda x:1, 
-        max_radius: float = 1.0,
-    ) -> None:
-        
-        self.home_pos = home_pos
-        self.decay = decay
-        self.max_radius = max_radius
-        self.type = type
-    
-    def update(self, home_pos):
-      
-        self.home_pos = home_pos
-        
-    def getForce(self, target_position, force_multiply=1.0) -> list[float]:
-        
-        if self.type:
 
-            to_target = [
-                self.home_pos[0] - target_position[0], self.home_pos[1] - target_position[1]
-            ]
+def Nh(phi: float) -> list[float]:
+    
+    return np.array([math.cos(phi), math.sin(phi)])
 
-            to_target_scalar = np.linalg.norm(to_target)
-            to_target_scalar_norm = max(0, min(1, to_target_scalar/self.max_radius))
-            
-            force = self.decay(to_target_scalar_norm)
-            to_target_norm = util.unit_vector(to_target)
-            
-            return [
-                    to_target_norm[0] * force * force_multiply,
-                    to_target_norm[1] * force * force_multiply
-            ]
-        
-        else:
-            # Not implemented
-            pass
 
 class HyperbolicField():
     '''
@@ -75,33 +34,35 @@ class HyperbolicField():
     
     def __init__(
         self, 
-        home_pos: list[float], 
-        radius: float,
-        direction: bool = True,
+        home_point: list[float], 
+        cw: bool,
+        env: str
     ) -> None:
       
-        self.home_pos = home_pos
-        self.radius = radius
-        self.kp = CONSTANTS['simulation']['K_P']
-        self.direction = 1 if direction else -1
+        self.home_point = home_point
+        self.env = env
+        self.direction = -1 if cw else 1
+        self.radius = CONSTANTS[self.env]['D_E']
+        self.kp = CONSTANTS[self.env]['K_P']
       
-    def update(self, home_pos):
+    def update_home_point(self, home_pos):
       
-        self.home_pos = home_pos
-      
-    def getForce(self, object_pos: list[float], force_multiply: float=1.0) -> list[float]:
+        self.home_point = home_pos
+    
+    def compute(self, object_position: list[float]) -> list[float]:
         
-        theta = util.angleBetweenTwoPoints(self.home_pos, object_pos)
-        p = util.distanceBetweenTwoPoints(self.home_pos, object_pos)
+        theta = util.angleBetweenTwoPoints(self.home_point, object_position)
+        p = util.distanceBetweenTwoPoints(self.home_point, object_position)
         
         if p > self.radius:
-            theta_d = theta + self.direction * (math.pi/2 * (2 - (self.radius + self.kp)/(p + self.kp)))
+            phi = theta + self.direction * (math.pi/2 * (2 - (self.radius + self.kp)/(p + self.kp)))
             
-        if p <= self.radius and p >= 0:
-            theta_d = theta + self.direction * (math.pi/2 * (p/self.radius)**0.5)
-        
-        return math.cos(theta_d) * force_multiply, math.sin(theta_d) * force_multiply
-    
+        elif p <= self.radius and p >= 0:
+            phi = theta + self.direction * (math.pi/2 * (p/self.radius)**0.5)
+            
+        return phi
+
+
 class RepulsivePointField():
     '''
     Um campo potencial de atração originário de um único ponto.
@@ -110,78 +71,78 @@ class RepulsivePointField():
     def __init__(
         self, 
         home_pos: list[float],
-        range: float = 0
+        radius: float
     ) -> None:
-        self.home_pos = home_pos
-        self.range = range
-    
-    def update(self, home_pos):
-      
-        self.home_pos = home_pos
-    
-    def getForce(self, object_pos: list[float], force_multiply: float=1.0) -> list[float]:
-        
-        theta = util.angleBetweenTwoPoints(self.home_pos, object_pos)
-        
-        if self.range == 0:
-            return math.cos(theta) * force_multiply, math.sin(theta) * force_multiply
-        else:
-            p = util.distanceBetweenTwoPoints(self.home_pos, object_pos)
-            
-            if p <= self.range:
-                return math.cos(theta) * force_multiply, math.sin(theta) * force_multiply
-            else:
-                return 0,0
-
-class MoveToGoalField():
-    '''
-    Um campo potencial de atração originário de um único ponto, que objetiva fazer com que o robô chegue ao objeto com a orientação correta.
-    '''
-    
-    def __init__(
-        self, 
-        home_pos: list[float],
-        radius: float,
-    ) -> None:
-        
         self.home_pos = home_pos
         self.radius = radius
-        self.hyperbolic_field_cw = HyperbolicField(
-            home_pos=self.home_pos,
-            radius=self.radius,
-            direction=1
-        )
-        self.hyperbolic_field_ccw = HyperbolicField(
-            home_pos=self.home_pos,
-            radius=self.radius,
-            direction=-1
-        )
-        
+    
     def update(self, home_pos):
       
         self.home_pos = home_pos
     
-    def getForce(self, object_pos: list[float], force_multiply: float=1.0) -> list[float]:
+    def compute(self, object_position: list[float]) -> list[float]:
         
-        yl = object_pos[1] + self.radius
-        yr = object_pos - self.radius
+        p = util.distanceBetweenTwoPoints(self.home_pos, object_position)
         
-        if object_pos[1] < self.radius and object_pos[1] >= -self.radius:
+        if p <= self.radius:
             
-            self.hyperbolic_field_cw.update(self.home_pos)
-            self.hyperbolic_field_ccw.update(self.home_pos)
+            return util.angleBetweenTwoPoints(self.home_pos, object_position)
+        
+        else:
             
-            v_theta_ccw = self.hyperbolic_field_ccw.getForce([object_pos[0], yl], force_multiply)
-            v_theta_cw = self.hyperbolic_field_cw.getForce([object_pos[0], yr], force_multiply)
+            return None
+        
+
+class MoveToGoalField():
+    
+    def __init__(
+        self,
+        home_point: list[float],
+        env
+    ) -> None:
+    
+        self.home_point = home_point
+        self.env = env
+        self.radius = CONSTANTS[self.env]['D_E']
+        
+        self.h_field_ccw = HyperbolicField(
+            self.home_point,
+            False,
+            self.env
+        )
+        self.h_field_cw = HyperbolicField(
+            self.home_point,
+            True,
+            self.env
+        )
+        
+    def update_home_point(self, home_point):
+        
+        self.home_point = home_point
+        
+    def compute(self, object_position: list[float]):
+        
+        yl = abs(object_position[1] + self.radius)
+        yr = abs(object_position[1] - self.radius)
+        
+        dy = abs(object_position[1] - self.home_point[1])
+        
+        phi_ccw = self.h_field_ccw.compute(
+            [object_position[1], object_position[1] - self.radius]
+        )
+        phi_cw = self.h_field_cw.compute(
+            [object_position[1], object_position[1] + self.radius]
+        )
+        
+        if -self.radius <= dy < self.radius:
             
-            return (yl * np.array(v_theta_ccw) + yr * np.array(v_theta_cw)) / 2 * self.radius
+            spiral_merge = (yl * Nh(phi_ccw) + yr * Nh(phi_cw)) / 2 * self.radius
+            return math.atan2(spiral_merge[1], spiral_merge[0])
+        
+        elif dy < -self.radius:
             
-        if object_pos[1] < -self.radius:
+            return phi_cw
+        
+        elif dy >= self.radius:
             
-            self.hyperbolic_field_cw.update(self.home_pos)
-            return self.hyperbolic_field_ccw.getForce([object_pos[0], yr], force_multiply)
-            
-        if object_pos[1] >= self.radius:
-            
-            self.hyperbolic_field_ccw.update(self.home_pos)
-            return self.hyperbolic_field_ccw.getForce([object_pos[0], yl], force_multiply)
+            return phi_ccw

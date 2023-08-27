@@ -20,6 +20,18 @@ def unit_vector(vector: list[float]) -> list[float]:
         return np.array([0, 0])
     return vector / np.linalg.norm(vector)
 
+def norm(d_x: int, d_y: int) -> float:
+    return math.sqrt(d_x ** 2 + d_y ** 2)
+
+def wrapToPi(angle: float) -> float:
+    
+    if angle > math.pi:
+        return angle - 2 * math.pi
+    if angle < -math.pi:
+        return 2 * math.pi + angle
+    else:
+        return angle
+
 def apply_angular_decay(angular_velocity: float, decay_rate: float) -> float:
     return angular_velocity * decay_rate
 

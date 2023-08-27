@@ -48,9 +48,8 @@ ball = Ball(
 
 from strategy import potential_field
 
-pot_field = potential_field.HyperbolicField(
+pot_field = potential_field.MoveToGoalField(
     home_point = [0, 0],
-    cw = True,
     env = args.env
 )
 
@@ -71,8 +70,11 @@ if __name__ == '__main__':
                 
                 # Atualizando informações
                 robot.update(vision.frame)
+                ball.update(vision.frame)
                 
                 #Campo potencial
+                pot_field.update_home_point(ball.position)
+                
                 phi = pot_field.compute(robot.position)
                 
                 print('phi:', phi)

@@ -1,17 +1,33 @@
 from entities.Robot import Robot
 import math
 from utils import util
+import numpy as np
+
+def speed_to_power(robot: Robot, v: float, w: float):
+    """
+    Returns the wheels angular speed
+
+    Args:
+        robot (Robot): 
+        v (float): Robot linear speed
+        w (float): Robot angular speed
+
+    Returns:
+        [wl, wr](float): wl - Left wheel angular speed, wr - Right wheel angular speed 
+    """
+    wl = (2 * v - w * robot.L)/2 * robot.R
+    wr = (2 * v + w * robot.L)/2 * robot.R
+    
+    return wl, wr
 
 class CleverTrick():
 
     def __init__(
         self,
         consider_back=True,
-        force=1
     ) -> None:
         
         self.consider_back = consider_back
-        self.force = force
         self.desired_speed = [.0, .0]
         
     def control(self, robot: Robot):
@@ -22,7 +38,7 @@ class CleverTrick():
         theta = util.apply_angular_decay(robot.orientation, 1) 
         
         v = self.desired_speed[0] * math.cos(-theta) - self.desired_speed[1] * math.sin(-theta)
-        w = - n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
+        w = n * (self.desired_speed[0] * math.sin(-theta) + self.desired_speed[1] * math.cos(-theta))
         
         if self.consider_back:
             
@@ -38,15 +54,12 @@ class CleverTrick():
             
             if abs(angle_error_2) < abs(angle_error_1):
                 w *= -1
-
-        wl = (2 * v - w * robot.L)/2 * robot.R
-        wr = (2 * v + w * robot.L)/2 * robot.R
         
-        return wl, wr
+        return v, w
     
     def update(self, robot: Robot):
         
         self.desired_speed = robot.desired_speed
-        wl, wr = self.control(robot)
+        v, w = self.control(robot)
         
-        return wl * self.force, wr * self.force
+        return speed_to_power(robot, v, w)
