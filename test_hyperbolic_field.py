@@ -73,7 +73,10 @@ if __name__ == '__main__':
                 robot.update(vision.frame)
                 
                 #Campo potencial
-                phi = pot_field.compute(robot.position)
+                phi = pot_field.compute(
+                    robot.position[0] - pot_field.home_point[0],
+                    robot.position[1] - pot_field.home_point[1]
+                )
                 
                 print('phi:', phi)
                 

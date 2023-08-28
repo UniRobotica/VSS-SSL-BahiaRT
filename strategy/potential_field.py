@@ -6,7 +6,7 @@ from entities.Robot import Robot
 
 CONSTANTS = {
     'simulation': {
-        'D_E': 0.05,
+        'D_E': 0.2,
         'K_P': 0,
         'K_O': 0.0012,
         'D_MIN': 0.0348,
@@ -38,10 +38,10 @@ class HyperbolicField():
         cw: bool,
         env: str
     ) -> None:
-      
+        
         self.home_point = home_point
         self.env = env
-        self.direction = -1 if cw else 1
+        self.cw = not cw
         self.radius = CONSTANTS[self.env]['D_E']
         self.kp = CONSTANTS[self.env]['K_P']
       
@@ -49,19 +49,21 @@ class HyperbolicField():
       
         self.home_point = home_pos
     
-    def compute(self, object_position: list[float]) -> list[float]:
+    def compute(self, d_x: float, d_y: float) -> list[float]:
         
-        theta = util.angleBetweenTwoPoints(self.home_point, object_position)
-        p = util.distanceBetweenTwoPoints(self.home_point, object_position)
+        theta = math.atan2(d_y, d_x)
+        rho = util.norm(d_x, d_y)
         
-        if p > self.radius:
-            phi = theta + self.direction * (math.pi/2 * (2 - (self.radius + self.kp)/(p + self.kp)))
-            
-        elif p <= self.radius and p >= 0:
-            phi = theta + self.direction * (math.pi/2 * (p/self.radius)**0.5)
-            
-        return phi
+        if rho > self.radius:
+            angle = (math.pi / 2) * (2 - ((self.radius + self.kp) / (rho + self.kp)))
+        elif 0 <= rho <= self.radius:
+            angle = (math.pi / 2) * math.sqrt(rho / self.radius)
 
+        if self.cw:
+            return util.wrapToPi(theta + angle)
+        else:
+            return util.wrapToPi(theta - angle)
+        
 
 class RepulsivePointField():
     '''
@@ -70,10 +72,10 @@ class RepulsivePointField():
     
     def __init__(
         self, 
-        home_pos: list[float],
+        home_point: list[float],
         radius: float
     ) -> None:
-        self.home_pos = home_pos
+        self.home_point = home_point
         self.radius = radius
     
     def update(self, home_pos):
@@ -82,7 +84,10 @@ class RepulsivePointField():
     
     def compute(self, object_position: list[float]) -> list[float]:
         
-        p = util.distanceBetweenTwoPoints(self.home_pos, object_position)
+        d_y = object_position[1] - self.home_pos[1]
+        d_x = object_position[0] - self.home_pos[0]
+        
+        p = util.norm(d_x, d_y)
         
         if p <= self.radius:
             
@@ -120,29 +125,25 @@ class MoveToGoalField():
         
         self.home_point = home_point
         
-    def compute(self, object_position: list[float]):
+    def compute(self, d_x: float, d_y: float):
         
-        yl = abs(object_position[1] + self.radius)
-        yr = abs(object_position[1] - self.radius)
-        
-        dy = abs(object_position[1] - self.home_point[1])
-        
-        phi_ccw = self.h_field_ccw.compute(
-            [object_position[1], object_position[1] - self.radius]
-        )
-        phi_cw = self.h_field_cw.compute(
-            [object_position[1], object_position[1] + self.radius]
-        )
-        
-        if -self.radius <= dy < self.radius:
-            
-            spiral_merge = (yl * Nh(phi_ccw) + yr * Nh(phi_cw)) / 2 * self.radius
-            return math.atan2(spiral_merge[1], spiral_merge[0])
-        
-        elif dy < -self.radius:
-            
-            return phi_cw
-        
-        elif dy >= self.radius:
-            
-            return phi_ccw
+        y_l = d_y + self.radius
+        y_r = d_y - self.radius
+
+        phi_ccw = self.h_field_cw.compute(d_x, d_y - self.radius)
+        phi_cw = self.h_field_ccw.compute(d_x, d_y + self.radius)
+
+        nh_ccw = Nh(phi_ccw)
+        nh_cw = Nh(phi_cw)
+        # The absolute value of y_l and y_r was not specified in the article, but the obtained results 
+        # with this trick are closer to the article images
+        spiral_merge = (abs(y_l) * nh_ccw + abs(y_r) * nh_cw) / (2 * self.radius) 
+
+        if -self.radius <= d_y < self.radius:
+            phi_tuf = math.atan2(spiral_merge[1], spiral_merge[0])
+        elif d_y < -self.radius:
+            phi_tuf = self.h_field_ccw.compute(d_x, d_y - self.radius)
+        else:
+            phi_tuf = self.h_field_cw.compute(d_x, d_y + self.radius)
+
+        return util.wrapToPi(phi_tuf)

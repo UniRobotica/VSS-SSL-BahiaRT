@@ -5,7 +5,7 @@ from typing import List, Tuple
 from debug import measures, draw
 from strategy import potential_field
 
-def debug(name: str, univector_field: potential_field.MoveToGoalField, obstacles: List[Tuple[int, int]]) -> None:
+def debug(name: str, univector_field: potential_field.HyperbolicField, obstacles: List[Tuple[int, int]]) -> None:
 
     w, h = measures.arena_w, measures.arena_h
     img_w, img_h = measures.getArenaSize()
@@ -20,7 +20,7 @@ def debug(name: str, univector_field: potential_field.MoveToGoalField, obstacles
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def getVectors(w: int, h: int, step: int, get_vec: potential_field.MoveToGoalField, obstacles: List[Tuple[int, int]]=None) -> List[List[float]]:
+def getVectors(w: int, h: int, step: int, get_vec: potential_field.HyperbolicField, obstacles: List[Tuple[int, int]]=None) -> List[List[float]]:
     
     vectors = []
     for x in range(0, w, step):
@@ -28,7 +28,7 @@ def getVectors(w: int, h: int, step: int, get_vec: potential_field.MoveToGoalFie
             if obstacles is None:
                 vector = potential_field.Nh(
                     get_vec.compute(
-                        [x/100, y/100]
+                        x/100 - get_vec.home_point[0], y/100 - get_vec.home_point[1]
                     )
                 )
             else:

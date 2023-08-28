@@ -53,7 +53,3 @@ def add_deg(deg1:float, deg2: float) -> float:
 def angleBetweenTwoPoints(p1: list[float], p2: list[float]) -> float:
     
     return math.atan2(p2[1] - p1[1], p2[0] - p1[0])
-
-def distanceBetweenTwoPoints(p1: list[float], p2: list[float]) -> float:
-    
-    return (p2[1] - p1[1])**2 + (p2[0] - p1[1])**2

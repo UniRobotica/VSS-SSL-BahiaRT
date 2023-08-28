@@ -10,4 +10,4 @@ pot_f = potential_field.HyperbolicField(
 
 if __name__ == "__main__":
     
-    debug.debug('Move To Goal', pot_f, None)
+    debug.debug('Hyperbolic', pot_f, None)

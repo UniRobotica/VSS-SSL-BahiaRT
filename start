@@ -1,3 +1,10 @@
 #!/bin/bash
-clear
-python3 test_one_robot_control.py
+
+function cleanup {
+    pkill -P $$
+    exit
+}
+trap cleanup SIGINT
+
+python3 debug_movetogoal.py
+wait
