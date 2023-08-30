@@ -53,3 +53,16 @@ def add_deg(deg1:float, deg2: float) -> float:
 def angleBetweenTwoPoints(p1: list[float], p2: list[float]) -> float:
     
     return math.atan2(p2[1] - p1[1], p2[0] - p1[0])
+
+def createRotationalMatrix(angleInRadians: float) -> list[float]:
+    
+    c, s = np.cos(angleInRadians), np.sin(angleInRadians)
+    return np.array(((c, -s), (s, c)))
+
+
+def rotateAngle(angleInRadians: list[float]) -> list[float]:
+    
+    return np.dot(
+        createRotationalMatrix(np.deg2rad(180)),
+        [math.cos(angleInRadians), math.sin(angleInRadians)]
+    )

@@ -1,10 +1,4 @@
 #!/bin/bash
 
-function cleanup {
-    pkill -P $$
-    exit
-}
-trap cleanup SIGINT
-
-python3 debug_movetogoal.py
+python3 debug_hyperbolic.py
 wait

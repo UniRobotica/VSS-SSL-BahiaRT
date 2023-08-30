@@ -44,9 +44,9 @@ ball = Ball(
 vision.start()
 
 # Criando campo potencial
-from strategy import potential_field
+from strategy import univector_field
 
-pot_field = potential_field.AttractivePointField(
+pot_field = univector_field.AttractivePointField(
     ball.position,
     lambda x:1,
     max_radius=2

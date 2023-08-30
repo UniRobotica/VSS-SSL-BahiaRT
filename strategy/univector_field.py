@@ -6,7 +6,7 @@ from entities.Robot import Robot
 
 CONSTANTS = {
     'simulation': {
-        'D_E': 0.2,
+        'D_E': 0.1,
         'K_P': 0,
         'K_O': 0.0012,
         'D_MIN': 0.0348,
@@ -49,10 +49,10 @@ class HyperbolicField():
       
         self.home_point = home_pos
     
-    def compute(self, d_x: float, d_y: float) -> list[float]:
+    def compute(self, dx: float, dy: float) -> float:
         
-        theta = math.atan2(d_y, d_x)
-        rho = util.norm(d_x, d_y)
+        theta = math.atan2(dy, dx)
+        rho = util.norm(dx, dy)
         
         if rho > self.radius:
             angle = (math.pi / 2) * (2 - ((self.radius + self.kp) / (rho + self.kp)))
@@ -73,29 +73,18 @@ class RepulsivePointField():
     def __init__(
         self, 
         home_point: list[float],
-        radius: float
+        env: str
     ) -> None:
         self.home_point = home_point
-        self.radius = radius
+        self.env = env
     
     def update(self, home_pos):
       
         self.home_pos = home_pos
     
-    def compute(self, object_position: list[float]) -> list[float]:
+    def compute(self, dx, dy: list[float]) -> list[float]:
         
-        d_y = object_position[1] - self.home_pos[1]
-        d_x = object_position[0] - self.home_pos[0]
-        
-        p = util.norm(d_x, d_y)
-        
-        if p <= self.radius:
-            
-            return util.angleBetweenTwoPoints(self.home_pos, object_position)
-        
-        else:
-            
-            return None
+        return math.atan2(dy, dx)
         
 
 class MoveToGoalField():
@@ -125,25 +114,36 @@ class MoveToGoalField():
         
         self.home_point = home_point
         
-    def compute(self, d_x: float, d_y: float):
+    def compute(self, dx: float, dy: float) -> float:
         
-        y_l = d_y + self.radius
-        y_r = d_y - self.radius
+        yl = dy + self.radius
+        yr = dy - self.radius
 
-        phi_ccw = self.h_field_cw.compute(d_x, d_y - self.radius)
-        phi_cw = self.h_field_ccw.compute(d_x, d_y + self.radius)
+        phi_ccw = self.h_field_cw.compute(dx, dy - self.radius)
+        phi_cw = self.h_field_ccw.compute(dx, dy + self.radius)
 
         nh_ccw = Nh(phi_ccw)
         nh_cw = Nh(phi_cw)
         # The absolute value of y_l and y_r was not specified in the article, but the obtained results 
         # with this trick are closer to the article images
-        spiral_merge = (abs(y_l) * nh_ccw + abs(y_r) * nh_cw) / (2 * self.radius) 
+        spiral_merge = (abs(yl) * nh_ccw + abs(yr) * nh_cw) / (2 * self.radius) 
 
-        if -self.radius <= d_y < self.radius:
-            phi_tuf = math.atan2(spiral_merge[1], spiral_merge[0])
-        elif d_y < -self.radius:
-            phi_tuf = self.h_field_ccw.compute(d_x, d_y - self.radius)
+        if dy > self.radius:
+            phi_tuf = self.h_field_cw.compute(dx, dy - self.radius)
+        elif dy < -self.radius:
+            phi_tuf = self.h_field_ccw.compute(dx, dy + self.radius)
         else:
-            phi_tuf = self.h_field_cw.compute(d_x, d_y + self.radius)
-
+            phi_tuf = math.atan2(spiral_merge[1], spiral_merge[0])
+            
         return util.wrapToPi(phi_tuf)
+    
+
+class AvoidObstacleField():
+    
+    def __init__(
+        self,
+        home_point: list[float]
+    ) -> None:
+        
+        self.home_point = home_point
+        

@@ -46,9 +46,9 @@ ball = Ball(
 
 # Criando campo potencial -----------------------------------------------------
 
-from strategy import potential_field
+from strategy import univector_field
 
-pot_field = potential_field.MoveToGoalField(
+pot_field = univector_field.MoveToGoalField(
     home_point = [0, 0],
     env = args.env
 )
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 print('phi:', phi)
                 
                 robot.set_desired(
-                    potential_field.Nh(phi) * 2000
+                    univector_field.Nh(phi) * 2000
                 )
                 
                 print('wl:',robot.wl)

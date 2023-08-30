@@ -1,8 +1,8 @@
 from debug import debug, measures
 from random import randint
-from strategy import potential_field
+from strategy import univector_field
 
-pot_f = potential_field.HyperbolicField(
+pot_f = univector_field.HyperbolicField(
     measures.centerPosition(),
     cw=True,
     env='simulation'
@@ -10,4 +10,4 @@ pot_f = potential_field.HyperbolicField(
 
 if __name__ == "__main__":
     
-    debug.debug('Hyperbolic', pot_f, None)
+    debug.debug('Hyperbolic Field', pot_f, None)

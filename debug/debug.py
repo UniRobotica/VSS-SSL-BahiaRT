@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 from typing import List, Tuple
 from debug import measures, draw
-from strategy import potential_field
+from strategy import univector_field
 
-def debug(name: str, univector_field: potential_field.HyperbolicField, obstacles: List[Tuple[int, int]]) -> None:
+def debug(name: str, univector_field: univector_field.HyperbolicField, obstacles: List[Tuple[int, int]]) -> None:
 
     w, h = measures.arena_w, measures.arena_h
     img_w, img_h = measures.getArenaSize()
@@ -20,13 +20,13 @@ def debug(name: str, univector_field: potential_field.HyperbolicField, obstacles
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def getVectors(w: int, h: int, step: int, get_vec: potential_field.HyperbolicField, obstacles: List[Tuple[int, int]]=None) -> List[List[float]]:
+def getVectors(w: int, h: int, step: int, get_vec: univector_field.HyperbolicField, obstacles: List[Tuple[int, int]]=None) -> List[List[float]]:
     
     vectors = []
     for x in range(0, w, step):
         for y in range(0, h, step):
             if obstacles is None:
-                vector = potential_field.Nh(
+                vector = univector_field.Nh(
                     get_vec.compute(
                         x/100 - get_vec.home_point[0], y/100 - get_vec.home_point[1]
                     )
