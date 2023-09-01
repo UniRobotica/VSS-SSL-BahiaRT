@@ -15,6 +15,7 @@ Python 3.9.17
 Protobuf
 Numpy
 Pyserial
+OpenCV
 ```
 
 ### Como instalar

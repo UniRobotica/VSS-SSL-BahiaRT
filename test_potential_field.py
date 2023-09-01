@@ -27,12 +27,12 @@ else:
     # Criando comunicação
     vision = visionSim.VisionSim()
 
-from strategy import clever_trick
+from strategy import robot_kinematic
 
 # Criando entidades
 
 robot = Robot(
-    clever_trick.CleverTrick(consider_back=False),
+    robot_kinematic.CleverTrick(consider_back=False),
     env=args.env,
     team_color=False,   
 )

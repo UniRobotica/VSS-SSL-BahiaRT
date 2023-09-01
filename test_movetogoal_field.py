@@ -33,10 +33,10 @@ vision.start()
 
 from entities.Robot import Robot
 from entities.Ball import Ball
-from strategy import clever_trick
+from strategy import robot_kinematic
 
 robot = Robot(
-    clever_trick.CleverTrick(consider_back=False),
+    robot_kinematic.CleverTrick(consider_back=False),
     env=args.env,
     team_color=True,   
 )
