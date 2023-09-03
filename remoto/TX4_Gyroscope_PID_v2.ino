@@ -1,5 +1,5 @@
 
-//ACSO-VVS-F
+// ACSO-VVS-F
 
 // Código de controle joystick via ESP-NOW do ACSO-VSSS-F com Giroscópio Acelerômetro e controle PID
 
@@ -32,10 +32,10 @@ struct_message commands;
 
 esp_now_peer_info_t peerInfo;
 
-//This function is used to map 0-4095 joystick value to 0-254. hence 127 is the center value which we send.
-//It also adjust the deadband in joystick.
-//Jotstick values range from 0-4095. But its center value is not always 2047. It is little different.
-//So we need to add some deadband to center value. in our case 1800-2200. Any value in this deadband range is mapped to center 127.
+// This function is used to map 0-4095 joystick value to 0-254. hence 127 is the center value which we send.
+// It also adjust the deadband in joystick.
+// Jotstick values range from 0-4095. But its center value is not always 2047. It is little different.
+// So we need to add some deadband to center value. in our case 1800-2200. Any value in this deadband range is mapped to center 127.
 int mapAndAdjustJoystickDeadBandValues(int value, bool reverse)
 {
   if (value >= 2000)
@@ -59,7 +59,8 @@ int mapAndAdjustJoystickDeadBandValues(int value, bool reverse)
 }
 
 // Função Callback para envio dos dados
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status)
+{
   //Serial.print("\r\nLast Packet Send Status:\t ");
   //Serial.println(status);
   //Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Message sent" : "Message failed");
@@ -149,8 +150,9 @@ void loop()
   sendData();
 }
 
-void sendData(){   
-    // esse delay é necessário para que os dados sejam enviados corretamente
+void sendData()
+{
+    // Esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
     delay(50);    
 }
