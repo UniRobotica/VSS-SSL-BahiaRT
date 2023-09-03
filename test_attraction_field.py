@@ -1,6 +1,5 @@
 import time
 import argparse
-from algorithms import robot_kinematics
 
 parser = argparse.ArgumentParser(description='BahiaRT_V3S')
 parser.add_argument('--env', default='simulation') # real or simulation
@@ -34,6 +33,7 @@ vision.start()
 
 from entities.Robot import Robot
 from entities.Ball import Ball
+from algorithms import robot_kinematics
 
 robot = Robot(
     env=args.env,
@@ -47,9 +47,8 @@ ball = Ball(
 
 from algorithms import univector_field
 
-pot_field = univector_field.MoveToGoalField(
-    home_point = [0, 0],
-    env = args.env
+pot_field = univector_field.AttractionField(
+    home_point = [0, 0]
 )
 
 # -----------------------------------------------------------------------------
@@ -69,15 +68,13 @@ if __name__ == '__main__':
                 
                 # Atualizando informações
                 robot.update(vision.frame)
-                ball.update(vision.frame)
-                pot_field.update_home_point(ball.position)
                 
                 POWER_MULTIPLY = 3000
                 robot.set_desired(
                     robot_kinematics.global_to_ws(
                         pot_field.Nh(robot.position), 
                         robot.orientation
-                    ) * 2000
+                    ) * POWER_MULTIPLY
                 )
                 
                 print('wl:',robot.wl)

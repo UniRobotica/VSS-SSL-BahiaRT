@@ -5,6 +5,7 @@ import json
 import time
 import threading
 
+from collections import deque
 from google.protobuf.json_format import MessageToJson
 from protocols import packet_pb2, command_pb2
 
@@ -26,7 +27,13 @@ class VisionSim(threading.Thread):
         self.listen_address =   sim_config['listen_address']
         self.listen_port    =   sim_config['listen_port']
         self.frame          =   None
-        self.last_frame     =   None
+        self._frame_times   =   deque(maxlen=60)
+        self._fps           =   0
+        
+    def printInfo(self):
+        
+        print(f'FRAME: {self.frame}')
+        print('')
         
     def _create_socket(self):
         '''
@@ -67,6 +74,16 @@ class VisionSim(threading.Thread):
 
         return sock
     
+    def set_fps(self):
+        self._frame_times.append(time.time())
+        if len(self._frame_times) <= 3:
+            return
+        fps_frame_by_frame = [
+            (v - i) for i, v in zip(self._frame_times, list(self._frame_times)[1:])
+        ]
+        self._fps = len(fps_frame_by_frame)/sum(fps_frame_by_frame)
+
+    
     def _wait_to_connect(self):
         self.vision_sock.recv(1024)
     
@@ -79,8 +96,10 @@ class VisionSim(threading.Thread):
         while True:
             env = packet_pb2.Environment()
             data = self.vision_sock.recv(1024)
+            self.set_fps()
             env.ParseFromString(data)
             self.frame = json.loads(MessageToJson(env))['frame']
+            self. frame.__setitem__('fps', self._fps)
     
     def send_data(self, robot: Robot):
         """

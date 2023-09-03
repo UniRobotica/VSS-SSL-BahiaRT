@@ -44,8 +44,7 @@ if __name__ == '__main__':
                 
                 time.sleep(0.003) # Necessário para o recebimento correto da informação da visão
                 
-                print(vision.frame)
-                print(' ')
+                vision.printInfo()
      
         else:
             print('Waiting for vision data...')

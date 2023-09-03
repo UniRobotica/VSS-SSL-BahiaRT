@@ -27,12 +27,12 @@ else:
     # Criando comunicação
     vision = visionSim.VisionSim()
 
-from strategy import robot_kinematic
+from algorithms import robot_kinematics
 
 # Criando entidades
 
 robot = Robot(
-    robot_kinematic.CleverTrick(consider_back=False),
+    robot_kinematics.CleverTrick(consider_back=False),
     env=args.env,
     team_color=False,   
 )
@@ -44,7 +44,7 @@ ball = Ball(
 vision.start()
 
 # Criando campo potencial
-from strategy import univector_field
+from algorithms import univector_field
 
 pot_field = univector_field.AttractivePointField(
     ball.position,

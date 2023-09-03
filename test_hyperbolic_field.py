@@ -33,10 +33,9 @@ vision.start()
 
 from entities.Robot import Robot
 from entities.Ball import Ball
-from strategy import robot_kinematic
+from algorithms import robot_kinematics
 
 robot = Robot(
-    robot_kinematic.CleverTrick(consider_back=False),
     env=args.env,
     team_color=True,   
 )
@@ -46,7 +45,7 @@ ball = Ball(
 
 # Criando campo potencial -----------------------------------------------------
 
-from strategy import univector_field
+from algorithms import univector_field
 
 pot_field = univector_field.HyperbolicField(
     home_point = [0, 0],
@@ -72,16 +71,12 @@ if __name__ == '__main__':
                 # Atualizando informações
                 robot.update(vision.frame)
                 
-                #Campo potencial
-                phi = pot_field.compute(
-                    robot.position[0] - pot_field.home_point[0],
-                    robot.position[1] - pot_field.home_point[1]
-                )
-                
-                print('phi:', phi)
-                
+                POWER_MULTIPLY = 3000
                 robot.set_desired(
-                    univector_field.Nh(phi) * 2000
+                    robot_kinematics.global_to_ws(
+                        pot_field.Nh(robot.position), 
+                        robot.orientation
+                    ) * POWER_MULTIPLY
                 )
                 
                 print('wl:',robot.wl)

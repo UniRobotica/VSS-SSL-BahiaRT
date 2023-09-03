@@ -1,8 +1,8 @@
 import math
+import numpy as np
 
 from entities.Robot import Robot
 from utils import util
-
 
 
 def speed_to_power(v: float, w: float):
@@ -20,16 +20,17 @@ def speed_to_power(v: float, w: float):
     wr = (2 * v + w * Robot.L)/2 * Robot.R
     
     return wl, wr
+       
         
-def calculate_local_speeds(self, v_g: list[float], orientation: float):
+def calculate_local_speeds(vg: list[float], orientation: float):
     
     #proporcional angular
     n = (1/0.185)
     
     theta = util.apply_angular_decay(orientation, 1)
     
-    v = v_g[0] * math.cos(-theta) - v_g[1] * math.sin(-theta)
-    w = n * (v_g[0] * math.sin(-theta) + v_g[1] * math.cos(-theta))
+    v = vg[0] * math.cos(-theta) - vg[1] * math.sin(-theta)
+    w = n * (vg[0] * math.sin(-theta) + vg[1] * math.cos(-theta))
     
     #inversed front side
     #desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
@@ -46,10 +47,18 @@ def calculate_local_speeds(self, v_g: list[float], orientation: float):
     
     return v, w
 
-def ddr_ik(vx, omega, L=0.5, r=0.1):
-    """DDR inverse kinematics: calculate wheels speeds from desired velocity."""
-    return (vx - (L/2)*omega)/r, (vx + (L/2)*omega)/r
 
-def ddr_fk(phidot_L, phidot_R, L=0.5, r=0.1):
-    """DDR inverse kinematics: calculate wheels speeds from desired velocity."""
-    return (phidot_R+phidot_L)*r/2, (phidot_R-phidot_L)*r/L
+def global_to_ws(vg: list[float], orientation: float):
+    """
+    Gives the wheels power based to reach the configuration [vx, vy, omega].
+
+    Args:
+        vg (list[float]): Global speed [vx, vy]
+        orientation (float): Global orientation [omega]
+
+    Returns:
+        list(float): Wheels power [wl, wr]
+    """
+    
+    v, w = calculate_local_speeds(vg, orientation)
+    return np.array(speed_to_power(v, w))

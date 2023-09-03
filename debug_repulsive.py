@@ -1,6 +1,6 @@
 from debug import debug, measures
 from random import randint
-from strategy import univector_field
+from algorithms import univector_field
 
 pot_f = univector_field.RepulsivePointField(
     measures.centerPosition(),

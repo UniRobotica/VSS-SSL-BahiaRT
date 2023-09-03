@@ -1,8 +1,6 @@
 import time
 import argparse
 
-# Definindo ambiente -----------------------------------------------------------
-
 parser = argparse.ArgumentParser(description='BahiaRT_V3S')
 parser.add_argument('--env', default='simulation') # real or simulation
 args = parser.parse_args()
@@ -18,27 +16,40 @@ if args.env == 'real':
     # Criando comunicação
     vision = visionReal.VisionReal()
     serial_comm = serial.SerialComm()
-    serial_comm.start() # Inicializando comunicação serial
+    serial_comm.start()
 
 # Para o teste simulado
 else:
     
     from vision import visionSim
 
-    # Criando comunicação com a visão
+    # Criando comunicação
     vision = visionSim.VisionSim()
 
-vision.start() # Inicializando comunicação com a visão
+# Inicializando comunicação
+vision.start()
 
-# Criando entidades ---------------------------------------------------------
+# Criando entidades -----------------------------------------------------
 
 from entities.Robot import Robot
-from strategy import robot_kinematic
+from entities.Ball import Ball
+from algorithms import robot_kinematics
 
 robot = Robot(
-    robot_kinematic.CleverTrick(consider_back=False),
     env=args.env,
     team_color=True,   
+)
+ball = Ball(
+    env=args.env  
+)
+
+# Criando campo potencial -----------------------------------------------------
+
+from algorithms import univector_field
+
+pot_field = univector_field.EdgeField(
+    [1.5, 1.3],
+    0.1
 )
 
 # -----------------------------------------------------------------------------
@@ -59,9 +70,12 @@ if __name__ == '__main__':
                 # Atualizando informações
                 robot.update(vision.frame)
                 
-                # Estabelecendo interesse
+                POWER_MULTIPLY = 3000
                 robot.set_desired(
-                    [100, 100]
+                    robot_kinematics.global_to_ws(
+                        pot_field.Nh(robot.position), 
+                        robot.orientation
+                    ) * POWER_MULTIPLY
                 )
                 
                 print('wl:',robot.wl)

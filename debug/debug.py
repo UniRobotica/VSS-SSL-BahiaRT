@@ -1,17 +1,15 @@
 from copy import copy
 import cv2
 import numpy as np
-from typing import List, Tuple
 from debug import measures, draw
-from strategy import univector_field
+from algorithms import univector_field
 
-def debug(name: str, univector_field: univector_field.HyperbolicField, obstacles: List[Tuple[int, int]]) -> None:
+def debug(name: str, univector_field: univector_field.BaseField, obstacles: list(list(int))) -> None:
 
     w, h = measures.arena_w, measures.arena_h
     img_w, img_h = measures.getArenaSize()
     step = measures.step
     
-    #field = np.zeros((img_h, img_w, 3))
     field = np.full((img_h, img_w, 3), 255, dtype=np.uint8)
     vectors = getVectors(w, h, step, univector_field, obstacles)
     vectorField = draw.drawVectorField(copy(field), vectors, w, h, step, univector_field.home_point * 100, obstacles)
@@ -20,7 +18,7 @@ def debug(name: str, univector_field: univector_field.HyperbolicField, obstacles
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def getVectors(w: int, h: int, step: int, get_vec: univector_field.HyperbolicField, obstacles: List[Tuple[int, int]]=None) -> List[List[float]]:
+def getVectors(w: int, h: int, step: int, get_vec: univector_field.BaseField, obstacles: list(list(int))=None) -> list(list(float)):
     
     vectors = []
     for x in range(0, w, step):
@@ -28,7 +26,7 @@ def getVectors(w: int, h: int, step: int, get_vec: univector_field.HyperbolicFie
             if obstacles is None:
                 vector = univector_field.Nh(
                     get_vec.compute(
-                        x/100 - get_vec.home_point[0], y/100 - get_vec.home_point[1]
+                        [x/100, y/100]
                     )
                 )
             else:

@@ -32,9 +32,9 @@ vision.start() # Inicializando comunicação com a visão
 
 # Criando entidades ---------------------------------------------------------
 
-from entities.Ball import Ball
+from entities.Robot import Robot
 
-ball = Ball()
+robot = Robot()
 # -----------------------------------------------------------------------------
 if __name__ == '__main__':
     
@@ -50,11 +50,16 @@ if __name__ == '__main__':
                 
                 time.sleep(0.003) # Necessário para o recebimento correto da informação da visão
                 
-                ball.update(vision.frame)
-                print('vx:', ball.vx)
-                print('vy:', ball.vy)
+                robot.update(vision.frame)
+                print('FPS:',robot.frames_info['fps'])
+                print('VX:',robot.vx)
+                print('VY:',robot.vy)
+                print('SPEED:',robot.speed)
                 print(' ')
-
+                
+                robot.wl = -10
+                robot.wr = -10
+                vision.send_data(robot)
      
         else:
             print('Waiting for vision data...')

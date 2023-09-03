@@ -5,20 +5,21 @@ Created by: - Luís Henrique
 Date: 30/06/2023
 '''
 
-import numpy as np
+from collections import deque
 import math
 
 from utils import util
+from utils.speed import speed, angular_speed
 
 class Robot():
     
-    # Robot length(L) and radius(R)
+    # Robot length
     L = 0.075
-    R = 0.02
+    # Robot wheel radius
+    R = 0.035
 
     def __init__(
         self,
-        control: object,
         env: str = 'simulation',
         robot_id: int = 0,
         team_color: bool = True # True: blue_team | False: yellow_team
@@ -27,14 +28,22 @@ class Robot():
         self.robot_id = robot_id
         self.team_color = team_color
         
-        self.control = control
         self.env = env
         
         self.position = [.0,.0]
         self.orientation = .0
         
-        self.wl, self.wr = 0, 0
-        self.desired_speed = [.0,.0]
+        self.wl, self.wr = .0, .0
+        
+        self.vx, self.vy, self.vtheta = .0, .0, .0
+        self.speed = .0
+        
+        self.frames_info = {
+            'x': deque(maxlen=10),
+            'y': deque(maxlen=10),
+            'theta': deque(maxlen=10),
+            'fps': float
+        }
 
     def team_color_str(self) -> str:
         if self.team_color:
@@ -42,9 +51,21 @@ class Robot():
         else:
             return 'yellow'
     
-    def set_desired(self, desired_speed):
-        self.desired_speed = desired_speed
+    def set_desired(self, power_w):
+        self.wl = power_w[0]
+        self.wr = power_w[1]
 
+    def _update_speeds(self):
+        self.frames_info['x'].append(self.position[0])
+        self.frames_info['y'].append(self.position[1])
+        self.frames_info['theta'].append(self.orientation)
+
+        self.vx = speed(self.frames_info['x'], self.frames_info['fps'])
+        self.vy = speed(self.frames_info['y'], self.frames_info['fps'])
+        self.vtheta = angular_speed(self.frames_info['theta'], self.frames_info['fps'])
+
+        self.speed = math.sqrt(self.vx ** 2 + self.vy ** 2)
+    
     def update(self, frame) -> None:
         """
         Updates the robot's own state
@@ -57,8 +78,11 @@ class Robot():
         if self.env == 'real':
             frame = frame.get('detection')
 
-        frame = frame.get(_team_color) if frame.get(_team_color) else None
+        fps = frame.get('fps', None)
+        if fps: 
+            self.frames_info['fps'] = fps
         
+        frame = frame.get(_team_color) if frame.get(_team_color) else None
         if frame:
             for robot in frame:
                 if robot.get('robotId', 0) == self.robot_id:
@@ -67,10 +91,8 @@ class Robot():
                         robot.get('y', 0),
                     ]
                     self.orientation = robot.get('orientation', 0)
-        
-            self.wl, self.wr = self.control.update(self)
-        
-        else: self.wl, self.wr = 0, 0
+                    
+        self._update_speeds()
         
     def printInfo(self):
         print(' ')
