@@ -1,4 +1,4 @@
-// ACSO-VSS-F_PID
+// ACSO-VSSS-F_PID
 
 // Código de controle joystick via ESP-NOW do ACSO-VSSS-F com Giroscópio Acelerômetro e controle PID
 
