@@ -1,3 +1,4 @@
+
 // ACSO-VSSS-F_PID
 
 // Código de controle joystick via ESP-NOW do ACSO-VSSS-F com Giroscópio Acelerômetro e controle PID
@@ -35,6 +36,7 @@ const int leftMotorPin1 = 26;
 const int leftMotorPin2 = 27;
 
 // Variáveis
+unsigned long Timeold; // Parâmetro de tempo para cálcular envio de dados no Monitor Serial (default = 1000ms)
 int Time; // Tempo em milisegundos para multiplicar pelo aceleração angular e obter a velocidade angular (quanto maior o tempo, maior o ganho no PID)
 double Angle; // Aceleração em rad/s^2 = 0
 double AngleError; // Diferença entre a aceleração em rad/s^2 medida e Angle
@@ -211,6 +213,7 @@ void setup()
 
   esp_now_register_recv_cb(OnDataRecv);
 
+  Timeold = 0;
   Time = 9;
   Angle = 0.00;
   AngleError = 0.00;
@@ -450,35 +453,37 @@ void loop()
     motorDireitoPID.Compute();
     motorEsquerdoPID.Compute();
   }
-  
-  // Exibe valores no Monitor Serial
-  Serial.print("PID: ");
-  Serial.print(rcv_commands.switchPressed);
-  Serial.print(" | ");
-  Serial.print("Eixo X: ");
-  Serial.print(rcv_commands.xAxisValue);
-  Serial.print(" | ");
-  Serial.print("Eixo Y: ");
-  Serial.print(rcv_commands.yAxisValue);
-  Serial.print(" | ");
-  Serial.print("Z: ");
-  Serial.print(g.gyro.z);
-  Serial.print(" rads/s² | ");
-  Serial.print("AngleError: ");
-  Serial.print(AngleError);
-  Serial.print(" | ");
-  Serial.print("PWM2: ");
-  Serial.print(Output2);
-  Serial.print(" | ");
-  Serial.print("AngleErrorM2: ");
-  Serial.print(AngleErrorM2);
-  Serial.print(" | ");
-  Serial.print("PWM1: ");
-  Serial.print(Output1);
-  Serial.print(" | ");
-  Serial.print("AngleErrorM1: ");
-  Serial.print(AngleErrorM1);    
-  Serial.println();
+
+  if (millis() - Timeold >= 50)
+  {
+    // Exibe valores no Monitor Serial
+    Serial.print("PID: ");
+    Serial.print(rcv_commands.switchPressed);Serial.print(" | ");
+    Serial.print("Eixo X: ");
+    Serial.print(rcv_commands.xAxisValue);
+    Serial.print(" | ");
+    Serial.print("Eixo Y: ");
+    Serial.print(rcv_commands.yAxisValue);
+    Serial.print(" | ");
+    Serial.print("Z: ");
+    Serial.print(g.gyro.z);
+    Serial.print(" rads/s² | ");
+    Serial.print("AngleError: ");
+    Serial.print(AngleError);
+    Serial.print(" | ");
+    Serial.print("PWM2: ");
+    Serial.print(Output2);
+    Serial.print(" | ");
+    Serial.print("AngleErrorM2: ");
+    Serial.print(AngleErrorM2);
+    Serial.print(" | ");
+    Serial.print("PWM1: ");
+    Serial.print(Output1);
+    Serial.print(" | ");
+    Serial.print("AngleErrorM1: ");
+    Serial.print(AngleErrorM1);
+    Serial.println();
+  }
   
   //Serial.println(g.gyro.z);
   //Serial.println(" rads/s²");
@@ -498,4 +503,3 @@ void loop()
     digitalWrite(leftMotorPin2, LOW);
   }
 }
-
