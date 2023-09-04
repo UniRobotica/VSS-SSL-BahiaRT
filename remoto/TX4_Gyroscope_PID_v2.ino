@@ -32,11 +32,10 @@ struct_message commands;
 
 esp_now_peer_info_t peerInfo;
 
-// This function is used to map 0-4095 joystick value to 0-254. hence 127 is the center value which we send.
-// It also adjust the deadband in joystick.
-// Jotstick values range from 0-4095. But its center value is not always 2047. It is little different.
-// So we need to add some deadband to center value. in our case 1800-2200. Any value in this deadband range is mapped to center 127.
-int mapAndAdjustJoystickDeadBandValues(int value, bool reverse)
+// Função usada para converter a escala de leitura do joystick de 0-4095 para 0-254, tendo o centro da escala em 127.
+// A escala joystick é de 0-4095 e o centro seria em 2047, porém valor central costuma ser um pouco diferente disso.
+// É necessário criar uma zona morta, com essa função a zona morta será entre os valores 1800-2200, atribuindo o valor de 127 para o centro do joystick.
+int mapAndAdjustJoystickDeadBandValues(int value)
 {
   if (value >= 2000)
   {
@@ -49,11 +48,6 @@ int mapAndAdjustJoystickDeadBandValues(int value, bool reverse)
   else
   {
     value = 127;
-  }
-
-  if (reverse)
-  {
-    value = 254 - value;
   }
   return value;
 }
@@ -115,12 +109,12 @@ void setup()
 
   pinMode(SWITCH_PIN, INPUT_PULLUP);   
 }
- 
+
 void loop()
 {
-  commands.xAxisValue = mapAndAdjustJoystickDeadBandValues(analogRead(X_AXIS_PIN), false);
-  commands.yAxisValue = mapAndAdjustJoystickDeadBandValues(analogRead(Y_AXIS_PIN), false);
-
+  commands.xAxisValue = mapAndAdjustJoystickDeadBandValues(analogRead(X_AXIS_PIN));
+  commands.yAxisValue = mapAndAdjustJoystickDeadBandValues(analogRead(Y_AXIS_PIN));
+    
   if (digitalRead(SWITCH_PIN) == LOW && ButtonSW == false)
   {
     commands.switchPressed = true;
@@ -133,11 +127,10 @@ void loop()
     ButtonSW = false;
     delay(200);  // Delay necessário para não falhar a atribuição do valor
   }
-  
-  // Exibe valores no Monitor Serial
-  //if (millis() - Timeold >= 50)
-  //{
-    Serial.println();
+
+  if (millis() - Timeold >= 50)
+  {
+    // Exibe valores no Monitor Serial
     Serial.print("Botão: ");
     Serial.print(commands.switchPressed);
     Serial.print(" | ");
@@ -146,13 +139,13 @@ void loop()
     Serial.print("Eixo Y: ");
     Serial.print(commands.yAxisValue);
     Serial.println();
-  //}
-  sendData();
+    
+    sendData();
+  }
 }
 
 void sendData()
 {
-    // Esse delay é necessário para que os dados sejam enviados corretamente
-    esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
-    delay(50);    
+  // Esse delay é necessário para que os dados sejam enviados corretamente
+  esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
 }
