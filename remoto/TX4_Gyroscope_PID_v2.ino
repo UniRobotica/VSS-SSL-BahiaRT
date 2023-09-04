@@ -108,6 +108,8 @@ void setup()
   esp_now_register_send_cb(OnDataSent);
 
   pinMode(SWITCH_PIN, INPUT_PULLUP);   
+
+  Timeold = 0;
 }
 
 void loop()
