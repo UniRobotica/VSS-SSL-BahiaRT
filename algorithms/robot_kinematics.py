@@ -14,7 +14,7 @@ def speed_to_power(v: float, w: float):
         w (float): Angular speed
 
     Returns:
-        [wl, wr](float): wl - Left wheel angular speed, wr - Right wheel angular speed 
+        [wl, wr](float): wl - Left wheel angular speed, wr - Right wheel angular speed
     """
     wl = (2 * v - w * Robot.L)/2 * Robot.R
     wr = (2 * v + w * Robot.L)/2 * Robot.R
@@ -50,7 +50,7 @@ def calculate_local_speeds(vg: list[float], orientation: float):
 
 def global_to_ws(vg: list[float], orientation: float):
     """
-    Gives the wheels power based to reach the configuration [vx, vy, omega].
+    Gives the wheels power to reach the configuration [vx, vy, omega].
 
     Args:
         vg (list[float]): Global speed [vx, vy]

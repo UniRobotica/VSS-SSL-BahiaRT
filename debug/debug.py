@@ -4,7 +4,7 @@ import numpy as np
 from debug import measures, draw
 from algorithms import univector_field
 
-def debug(name: str, univector_field: univector_field.BaseField, obstacles: list(list(int))) -> None:
+def debug(name: str, univector_field: univector_field.BaseField, obstacles: list[list[int]]) -> None:
 
     w, h = measures.arena_w, measures.arena_h
     img_w, img_h = measures.getArenaSize()
@@ -18,7 +18,7 @@ def debug(name: str, univector_field: univector_field.BaseField, obstacles: list
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def getVectors(w: int, h: int, step: int, get_vec: univector_field.BaseField, obstacles: list(list(int))=None) -> list(list(float)):
+def getVectors(w: int, h: int, step: int, get_vec: univector_field.BaseField, obstacles: list[list[int]]=None) -> list[list[float]]:
     
     vectors = []
     for x in range(0, w, step):
