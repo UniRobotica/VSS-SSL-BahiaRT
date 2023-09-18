@@ -92,7 +92,6 @@ class Robot():
                     ]
                     self.orientation = robot.get('orientation', 0)
                     
-        self._update_speeds()
         
     def printInfo(self):
         print(' ')

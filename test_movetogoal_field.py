@@ -37,6 +37,7 @@ from entities.Ball import Ball
 
 robot = Robot(
     env=args.env,
+    robot_id=7,
     team_color=True,   
 )
 ball = Ball(
@@ -72,12 +73,12 @@ if __name__ == '__main__':
                 ball.update(vision.frame)
                 pot_field.update_home_point(ball.position)
                 
-                POWER_MULTIPLY = 3000
+
                 robot.set_desired(
                     robot_kinematics.global_to_ws(
                         pot_field.Nh(robot.position), 
                         robot.orientation
-                    ) * 2000
+                    ) * 5000
                 )
                 
                 print('wl:',robot.wl)

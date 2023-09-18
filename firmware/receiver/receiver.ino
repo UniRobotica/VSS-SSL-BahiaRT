@@ -1,17 +1,17 @@
-// Código para o recebimento de informações e controle do robô
+  // Código para o recebimento de informações e controle do robô
 
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-#define MAX_PWM 200
+#define MAX_PWM 100
 
-#define PWMA 15
-#define A1 4
-#define B1 2
+#define PWMA 32
+#define A1 25
+#define B1 33
 
 #define PWMB 13
-#define A2 12 
-#define B2 14
+#define A2 26 
+#define B2 27
 
 // Definindo variáveis ------------------------------------------
 int robot_id = 0; // ATENÇÃO: Mudar o id de acordo com o robô
@@ -68,29 +68,8 @@ void motor_L(int speedL) {
 
 
 void motors_control(float wl, float wr) {
-    if (wr > 0)
-  {
-    motor_R(MAX_PWM);
-  }
-   if (wr < 0)
-  {
-    motor_R(-MAX_PWM);
-  }
-
-   if (wl > 0)
-  {
-    motor_L(MAX_PWM);
-  }
-   if (wl < 0)
-  {
-    motor_L(-MAX_PWM);
-  }
-
-  if (wl == 0 && wr == 0)
-  {
-    motor_L(0);
-    motor_R(0);
-  }
+    motor_L(wl);
+    motor_R(wr);
 }
 
 // Tratamento de string ----------------------------------------

@@ -19,6 +19,11 @@ class VisionReal(threading.Thread):
         self.host        = real_config['multicast_ip']
         self.frame       = None
         self.last_frame  = None
+    
+    def printInfo(self):
+        
+        print(f'FRAME: {self.frame}')
+        print('')
 
     def run(self):
         print("Starting vision...")

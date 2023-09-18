@@ -53,4 +53,4 @@ class Ball():
             ball_frame.get('y', 0)
         ]
         
-        self._update_speed()
+        

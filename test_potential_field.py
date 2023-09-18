@@ -32,8 +32,8 @@ from algorithms import robot_kinematics
 # Criando entidades
 
 robot = Robot(
-    robot_kinematics.CleverTrick(consider_back=False),
     env=args.env,
+    robot_id=7,
     team_color=False,   
 )
 ball = Ball(
@@ -46,10 +46,9 @@ vision.start()
 # Criando campo potencial
 from algorithms import univector_field
 
-pot_field = univector_field.AttractivePointField(
+pot_field = univector_field.PointField(
     ball.position,
-    lambda x:1,
-    max_radius=2
+    lambda x:x,
 )
 
 if __name__ == '__main__':
@@ -69,11 +68,14 @@ if __name__ == '__main__':
                 # Atualizando informações
                 robot.update(vision.frame)
                 ball.update(vision.frame)
+                pot_field.home_point = ball.position
                 
                 #Campo potencial
-                pot_field.update(ball.position)
                 robot.set_desired(
-                    pot_field.getForce(robot.position, 10000)
+                    robot_kinematics.global_to_ws(
+                        pot_field.getForce(robot.position),
+                        robot.orientation
+                    ) * 100
                 )
                 
                 print('wl:',robot.wl)
