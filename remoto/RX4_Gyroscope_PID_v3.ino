@@ -267,7 +267,7 @@ void setup()
   digitalWrite(leftMotorPin2, LOW);
 
   Timeold = 0;
-  Time = 5;
+  Time = 7;
   Angle = 0.00;
   AngleError = 0.00;
   AngleErrorM1 = 0.00;
@@ -278,8 +278,8 @@ void setup()
   Input2 = 0.00;
   Output1 = 0.00;
   Output2 = 0.00;
-  Setpoint1 = 75; // Alterar conforme a precisão desejada
-  Setpoint2 = 75; // Alterar conforme a precisão desejada
+  Setpoint1 = 75; // Alterar conforme o PWM desejado
+  Setpoint2 = 75; // Alterar conforme o PWM desejado
   rightMotorPID.SetOutputLimits(MIN_PWM, MAX_PWM);
   leftMotorPID.SetOutputLimits(MIN_PWM, MAX_PWM);
   rightMotorPID.SetMode(AUTOMATIC);
@@ -398,8 +398,8 @@ void loop()
       }
       else if(abs(AngleError) > 0.05 && AngleError < 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID), AngleError < 0 é condição com o eixo Z de cabeça para baixo
       {
-        AngleErrorM1 = -AngleError*Time;
-        AngleErrorM2 = abs(AngleError)*Time;
+        AngleErrorM1 = AngleError*Time;
+        AngleErrorM2 = abs(AngleError*Time);
         Input1 = AngleErrorM1;
         Input2 = AngleErrorM2;
         rightMotorPID.Compute();
