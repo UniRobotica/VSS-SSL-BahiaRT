@@ -309,7 +309,8 @@ void loop()
   { // Move o robô para frente
     if(incomingReadings.switchPressed == 1)
     { // Move o robô para frente com PID
-      if(abs(AngleError) > 0.05 && AngleError > 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID), AngleError > 0 é condição com o eixo Z de cabeça para baixo
+      if(abs(AngleError) > 0.05 && AngleError > 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID);
+                                                   // "AngleError > 0" é condição com o eixo Z de cabeça para cima, ou de cabeça pra baixo com o comando de inversão de medidas
       {
         AngleErrorM1 = -AngleError*Time;
         AngleErrorM2 = AngleError*Time;
@@ -318,8 +319,8 @@ void loop()
         rightMotorPID.Compute();
         leftMotorPID.Compute();
       }
-      else if(abs(AngleError) > 0.05 && AngleError < 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID), AngleError < 0 é condição com o eixo Z de cabeça para baixo
-      {
+      else if(abs(AngleError) > 0.05 && AngleError < 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID);
+      {                                                 // "AngleError > 0" é condição com o eixo Z de cabeça para cima, ou de cabeça pra baixo com o comando de inversão de medidas
         AngleErrorM1 = abs(AngleError*Time);
         AngleErrorM2 = AngleError*Time;
         Input1 = AngleErrorM1;
@@ -387,8 +388,8 @@ void loop()
   { // Move o robô para trás
     if(incomingReadings.switchPressed == 1)
     { // Move o robô para trás com PID
-      if(abs(AngleError) > 0.05 && AngleError > 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID), AngleError > 0 é condição com o eixo Z de cabeça para baixo
-      {
+      if(abs(AngleError) > 0.05 && AngleError > 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID);
+      {                                            // "AngleError > 0" é condição com o eixo Z de cabeça para cima, ou de cabeça pra baixo com o comando de inversão de medidas
         AngleErrorM1 = AngleError*Time;
         AngleErrorM2 = -AngleError*Time;
         Input1 = AngleErrorM1;
@@ -396,8 +397,8 @@ void loop()
         rightMotorPID.Compute();
         leftMotorPID.Compute();
       }
-      else if(abs(AngleError) > 0.05 && AngleError < 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID), AngleError < 0 é condição com o eixo Z de cabeça para baixo
-      {
+      else if(abs(AngleError) > 0.05 && AngleError < 0) // 0.05 é rads/s^2 (aceleração angular mínima escolhida para usar PID);
+      {                                                 // "AngleError > 0" é condição com o eixo Z de cabeça para cima, ou de cabeça pra baixo com o comando de inversão de medidas
         AngleErrorM1 = AngleError*Time;
         AngleErrorM2 = abs(AngleError*Time);
         Input1 = AngleErrorM1;
@@ -563,6 +564,8 @@ void loop()
     
     //Serial.print("AngleError: ");
     //Serial.println(AngleError);
+
+    Timeold = millis();
   }
 
   AngleErrorM1 = 0.00;
