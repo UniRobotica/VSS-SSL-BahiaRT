@@ -39,9 +39,9 @@ const int leftMotorPin2 = 27;
 unsigned long Timeold; // Parâmetro de tempo para cálcular envio de dados no Monitor Serial (default = 1000ms)
 int Time; // Tempo em milisegundos para multiplicar pelo aceleração angular e obter a velocidade angular (quanto maior o tempo, maior o ganho no PID)
 double Angle; // Aceleração em rad/s^2 = 0
-double AngleError; // Diferença entre a aceleração em rad/s^2 medida e Angle
-double AngleErrorM1; // Diferença entre a aceleração em rad/s^2 medida e Angle, multiplicado por Time
-double AngleErrorM2; // Diferença entre a aceleração em rad/s^2 medida e Angle, multiplicado por Time
+double AngleError; // Diferença entre a aceleração em rad/s^2 medida e Angle, erro da angulação
+double AngleErrorM1; // Diferença entre a aceleração em rad/s^2 medida e Angle, multiplicado por Time para a roda direita
+double AngleErrorM2; // Diferença entre a aceleração em rad/s^2 medida e Angle, multiplicado por Time para a roda esquerda
 double Input1; // Entrada para o PID da roda direita
 double Input2; // Entrada para o PID da roda esquerda
 double Output1; // Saída  para o PID da roda direita
