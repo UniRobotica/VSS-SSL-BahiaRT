@@ -37,7 +37,7 @@ from algorithms import robot_kinematics
 
 robot = Robot(
     env=args.env,
-    robot_id=7,
+    robot_id=0,
     team_color=True,   
 )
 ball = Ball(
@@ -74,7 +74,7 @@ if __name__ == '__main__':
                 ball.update(vision.frame)
                 pot_field.update_home_point(ball.position)
                 
-                POWER_MULTIPLY = 3000
+                POWER_MULTIPLY = 2000
                 robot.set_desired(
                     robot_kinematics.global_to_ws(
                         pot_field.Nh(robot.position), 

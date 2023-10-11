@@ -7,9 +7,11 @@
 // Definindo variáveis ------------------------------------------
 
 // MAC Adress genérico para enviar os dados no canal selecionado
-uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t broadcast_adr1[] = {0xC0, 0x49, 0xEF, 0xE4, 0xBE, 0x48};
+uint8_t broadcast_adr3[] = {0xC0, 0x49, 0xEF, 0xE4, 0xDF, 0x4C};
+uint8_t broadcast_adr4[] = {0x94, 0xE6, 0x86, 0x3C, 0xCA, 0xE4};
 
-#define CANAL 1
+#define CANAL 7
 
 // Varáveis para armazenar informação recebida
 const byte numChars = 64;
@@ -66,7 +68,9 @@ void recvWithStartEndMarkers(){
 // Função de envio via ESP-NOW -----------------------------------
 
 void sendData(){   
-    esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
+    esp_err_t message1 = esp_now_send(broadcast_adr1, (uint8_t *) &commands, sizeof(commands));
+    esp_err_t message2 = esp_now_send(broadcast_adr3, (uint8_t *) &commands, sizeof(commands));
+    esp_err_t message3 = esp_now_send(broadcast_adr4, (uint8_t *) &commands, sizeof(commands));
     delay(3); // esse delay é necessário para que os dados sejam enviados corretamente
 }
 
@@ -95,7 +99,21 @@ void setup() {
     return;
   }
 
-  memcpy(peerInfo.peer_addr, broadcast_adr, 6);
+  memcpy(peerInfo.peer_addr, broadcast_adr1, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) 
+  {
+    Serial.println("Failed to add peer");
+    return;
+  }
+
+  memcpy(peerInfo.peer_addr, broadcast_adr3, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) 
+  {
+    Serial.println("Failed to add peer");
+    return;
+  }
+
+  memcpy(peerInfo.peer_addr, broadcast_adr4, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK) 
   {
     Serial.println("Failed to add peer");

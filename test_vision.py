@@ -12,12 +12,9 @@ args = parser.parse_args()
 if args.env == 'real':
     
     from vision import visionReal
-    from comm import serial
 
     # Criando comunicação
     vision = visionReal.VisionReal()
-    serial_comm = serial.SerialComm()
-    serial_comm.start()
 
 # Para o teste simulado
 else:
@@ -48,4 +45,5 @@ if __name__ == '__main__':
      
         else:
             print('Waiting for vision data...')
+            vision.printInfo()
             time.sleep(3)

@@ -33,16 +33,16 @@ def calculate_local_speeds(vg: list[float], orientation: float):
     w = n * (vg[0] * math.sin(-theta) + vg[1] * math.cos(-theta))
     
     #inversed front side
-    #desired_angle_rad = math.atan2(vector_speed[1], vector_speed[0])
-    #desired_angle_deg = util.convert_to_deg(desired_angle_rad)
+    # desired_angle_rad = math.atan2(vg[1], vg[0])
+    # desired_angle_deg = util.convert_to_deg(desired_angle_rad)
 
-    #robot_angle_deg = util.convert_to_deg(orientation)
-    #robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
+    # robot_angle_deg = util.convert_to_deg(orientation)
+    # robot_angle_deg_inverted = util.add_deg(robot_angle_deg, 180)
     
-    #angle_error_1 = desired_angle_deg - robot_angle_deg
-    #angle_error_2 = desired_angle_deg - robot_angle_deg_inverted
+    # angle_error_1 = desired_angle_deg - robot_angle_deg
+    # angle_error_2 = desired_angle_deg - robot_angle_deg_inverted
     
-    #if abs(angle_error_2) < abs(angle_error_1):
+    # if abs(angle_error_2) < abs(angle_error_1):
     #    w *= -1
     
     return v, w

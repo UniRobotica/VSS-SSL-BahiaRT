@@ -24,6 +24,21 @@ class VisionReal(threading.Thread):
         
         print(f'FRAME: {self.frame}')
         print('')
+    
+    def printRobotIds(self):
+        
+        robotsYellow = self.frame.get('detection').get('robotsYellow')
+        robotsBlue = self.frame.get('detection').get('robotsYellow')
+        
+        if robotsBlue:
+            print('BLUE TEAM IDS:')
+            for robot in robotsBlue:
+                print(robot.get('robotId', 0), ",")
+        
+        if robotsYellow:
+            print('YELLOW TEAM IDS:')
+            for robot in robotsYellow:
+                print(robot.get('robotId', 0), ",")
 
     def run(self):
         print("Starting vision...")

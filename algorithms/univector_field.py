@@ -10,14 +10,16 @@ CONSTANTS = {
         'K_R': 0,
         'K_O': 1,
         'D_MIN': 0,
-        'DELTA' : 0
+        'DELTA' : 0,
+        'SPEED' : 1000000
     },
     'real': {
-        'D_E': 300,
+        'D_E': 100,
         'K_R': 0,
         'K_O': 1,
         'D_MIN': 0,
-        'DELTA' : 0
+        'DELTA' : 0,
+        'SPEED' : 100
     }
 }
 
@@ -52,6 +54,7 @@ class AttractionField(BaseField):
     """
     Represents a potential field that has a point as the origin
     """
+    decay = lambda x:x**2
     
     def __init__(
         self,
@@ -64,7 +67,7 @@ class AttractionField(BaseField):
         delta = util.delta(object_position, self.home_point)
         to_target_norm = util.unit_vector(delta)
         
-        return math.atan2(to_target_norm[1], to_target_norm[0])
+        return  math.atan2(to_target_norm[1], to_target_norm[0])
     
     def Nh(self, object_position: list[float]):
         
@@ -282,17 +285,16 @@ class AvoidObstacleField(BaseField):
         
         return util.wrap_to_pi(phi)
     
-from types import FunctionType
 class PointField():
     """
     Represents a potential field that has a point as the origin
     """
-
+    
     def __init__(
         self,
         home_point: list[float], 
-        decay: FunctionType = lambda x:1, 
-        max_radius: float = 1000.0,
+        decay = lambda x:x**2, 
+        max_radius: float = 100.0,
         type: bool = True, # True: attractive | False: repulsive
     ) -> None:
         
@@ -300,8 +302,12 @@ class PointField():
         self.decay = decay
         self.max_radius = max_radius
         self.type = type
+    
+    def update_home_point(self, home_point: list[float]):
         
-    def getForce(self, target_position, speed=100) -> list[float]:
+        self.home_point = home_point
+    
+    def Nh(self, target_position, speed=50) -> list[float]:
         """
         Gets the force in a point based on a simulated potential field that will constantly reduce the speed of the robot as the robot approaches the center of the force. 
         The potential field is limited by the maximum radius and the speed decay is based on a decay function that is given as a parameter.
@@ -317,7 +323,7 @@ class PointField():
         if self.type:
 
             to_target = [
-                self.home_point[0] - target_position[0], self.home_point[1] - target_position[1]
+                target_position[0] - self.home_point[0],  target_position[1] - self.home_point[1]
             ]
 
             to_target_scalar = np.linalg.norm(to_target)

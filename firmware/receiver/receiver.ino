@@ -1,20 +1,23 @@
-  // Código para o recebimento de informações e controle do robô
+// Código para o recebimento de informações e controle do robô
 
 #include <esp_now.h>
 #include <esp_wifi.h>
 
-#define MAX_PWM 100
+#define MAX_PWM 200
+#define MIN_PWM 0
 
 #define PWMA 32
 #define A1 25
 #define B1 33
+
+#define CANAL 7
 
 #define PWMB 13
 #define A2 26 
 #define B2 27
 
 // Definindo variáveis ------------------------------------------
-int robot_id = 0; // ATENÇÃO: Mudar o id de acordo com o robô
+int robot_id = 10; // ATENÇÃO: Mudar o id de acordo com o robô
 
 int id;
 int first_mark = 0, second_mark;
@@ -128,7 +131,7 @@ void setup() {
   ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
   ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
   ESP_ERROR_CHECK( esp_wifi_start());
-  ESP_ERROR_CHECK( esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
+  ESP_ERROR_CHECK( esp_wifi_set_channel(CANAL, WIFI_SECOND_CHAN_NONE));
 
   if (esp_now_init() != ESP_OK) 
   {
@@ -154,5 +157,3 @@ void loop() {
   // Executando o controle dos motores
   motors_control(v_l, v_a);
 }
-
-    

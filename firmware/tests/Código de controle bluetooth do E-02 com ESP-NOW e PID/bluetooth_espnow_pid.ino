@@ -13,7 +13,7 @@
 BluetoothSerial SerialBT;
 
 // MAC Adress de envio dos dados em rede
-uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t broadcast_adr0[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 //  //  //  //  //  //  //  //
 typedef struct struct_message{
@@ -98,7 +98,7 @@ void setup() {
     return;
   }
 
-  memcpy(peerInfo.peer_addr, broadcast_adr, 6);
+  memcpy(peerInfo.peer_addr, broadcast_adr0, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK) 
   {
     Serial.println("Failed to add peer");
@@ -320,7 +320,7 @@ void parado() {
 
 void sendData(){
   // Delay é necessário para que os dados sejam enviados corretamente
-  esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
+  esp_err_t message = esp_now_send(broadcast_adr0, (uint8_t *) &commands, sizeof(commands));
   delay(3);
 }
 

@@ -101,7 +101,7 @@ class VisionSim(threading.Thread):
             self.frame = json.loads(MessageToJson(env))['frame']
             self. frame.__setitem__('fps', self._fps)
     
-    def send_data(self, robot: Robot):
+    def send_data(self, robot_list: list[Robot]):
         """
         Send data for the server.
         
@@ -112,14 +112,16 @@ class VisionSim(threading.Thread):
             wr (float): Right wheel angular velocity
         """
 
-
-        robot_commands = [
-        {
-            "robot_id": robot.robot_id,
-            "color": robot.team_color_str(),
-            "wheel_left": robot.wl,
-            "wheel_right": robot.wr,
-        }]
+        robot_commands = []
+        for robot in robot_list :
+            robot_commands.append(
+                {
+                    "robot_id": robot.robot_id,
+                    "color": robot.team_color_str(),
+                    "wheel_left": robot.wl,
+                    "wheel_right": robot.wr,
+                }
+            )
 
         commands = command_pb2.Commands()
 

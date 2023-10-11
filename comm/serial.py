@@ -35,7 +35,6 @@ class SerialComm(object):
             message += f"{rb['robot_id']},{round(rb['wheel_left'], 2)},{round(rb['wheel_right'], 2)},"
 
         message = message[:-1] + '>'
-        print(message)
         self.comm.write(message.encode())
 
     def _get_robot_color(self, robot):

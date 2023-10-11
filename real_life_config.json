@@ -5,12 +5,22 @@
         "host_ip": "localhost",
         "blue_port": 30011,
         "yellow_port": 30012,
-        "vision_port": 10015,
+        "vision_port": 10323,
         "command_port": 20011,
-        "replacer_port": 10004
+        "replacer_port": 10004,
+        "referee_port": 10313
     },
     "comm": {
-        "comm_port": "/dev/ttyACM3",
+        "comm_port": "/dev/ttyUSB0",
         "baud_rate": 115200
+    },
+    "match" : {
+        "team_side": "left",
+        "team_color": "blue",
+        "robot_ids": [
+            11,
+            10,
+            4
+        ]
     }
 }
