@@ -1,4 +1,6 @@
 import time
+import math
+from utils import util
 import argparse
 from algorithms import robot_kinematics
 
@@ -37,7 +39,7 @@ from entities.Ball import Ball
 
 robot = Robot(
     env=args.env,
-    robot_id=7,
+    robot_id=0,
     team_color=True,   
 )
 ball = Ball(
@@ -72,13 +74,15 @@ if __name__ == '__main__':
                 robot.update(vision.frame)
                 ball.update(vision.frame)
                 pot_field.update_home_point(ball.position)
-                
 
+                angle = math.pi + util.wrap_to_pi(math.atan2(0 - ball.position[1], 0.75 - ball.position[0]))
+
+                POWER_MULTIPLY = 500
                 robot.set_desired(
                     robot_kinematics.global_to_ws(
-                        pot_field.Nh(robot.position), 
+                        pot_field.Nh(robot.position, angle), 
                         robot.orientation
-                    ) * 5000
+                    ) * POWER_MULTIPLY
                 )
                 
                 print('wl:',robot.wl)
@@ -98,7 +102,7 @@ if __name__ == '__main__':
                         ]
                     )
                 else:
-                    vision.send_data(robot)
+                    vision.send_data([robot])
      
         else:
             print('Waiting for vision data...')

@@ -219,9 +219,9 @@ class MoveToGoalField(BaseField):
             self.env
         )
         
-    def compute(self, object_position: list[float]) -> float:
+    def compute(self, object_position: list[float], rotationAngle: float) -> float:
         
-        dx, dy = util.delta(self.home_point, object_position)
+        dx, dy = util.rotate_vector(util.delta(self.home_point, object_position), -rotationAngle)
         
         yl = dy + self.radius
         yr = dy - self.radius
@@ -241,7 +241,11 @@ class MoveToGoalField(BaseField):
         else:
             phi_tuf = math.atan2(spiral_merge[1], spiral_merge[0])
             
-        return util.wrap_to_pi(phi_tuf)
+        return util.wrap_to_pi(phi_tuf) + rotationAngle
+    
+    def Nh(self, object_position, rotation: float) -> list[float]:
+        
+        return Nh(self.compute(object_position, rotation))
     
 
 class AvoidObstacleField(BaseField):

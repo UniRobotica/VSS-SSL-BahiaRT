@@ -75,22 +75,8 @@ ball = Ball(
 from algorithms import univector_field
 
 field_config = config.get_config('field.json')
-if team_side:
-    gk_home_pos = field_config['blue_goal'] 
-else:
-    gk_home_pos = field_config['yellow_goal']
 
-gk_field = univector_field.HyperbolicField(
-    home_point = [0, 0],
-    cw=True,
-    env=args.env
-)
-def_field = univector_field.HyperbolicField(
-    home_point = [0, 0],
-    cw=True,
-    env=args.env
-)
-attacker_field = univector_field.HyperbolicField(
+field = univector_field.HyperbolicField(
     home_point = [0, 0],
     cw=True,
     env=args.env
@@ -116,30 +102,12 @@ if __name__ == '__main__':
                     robot.update(vision.frame)
                 ball.update(vision.frame)
                 
-                attacker_field.update_home_point(ball.position)
-                def_field.update_home_point(ball.position)
-                gk_field.update_home_point(ball.position)
+                field.update_home_point(ball.position)
                 
-                POWER_MULTIPLY = 500 if args.env == 'simulation' else 2000
-                # GoalKeeper
-                robot_vector = gk_field.Nh(list_robots[0].position)
+                POWER_MULTIPLY = 1000 if args.env == 'simulation' else 2000
+ 
+                robot_vector = field.Nh(list_robots[0].position)
                 list_robots[0].set_desired(
-                    robot_kinematics.global_to_ws(
-                        robot_vector, 
-                        robot.orientation
-                    ) * POWER_MULTIPLY
-                )
-                # Defense
-                robot_vector = def_field.Nh(list_robots[1].position)
-                list_robots[1].set_desired(
-                    robot_kinematics.global_to_ws(
-                        robot_vector, 
-                        robot.orientation
-                    ) * POWER_MULTIPLY
-                )
-                # Attacker
-                robot_vector = attacker_field.Nh(list_robots[2].position)
-                list_robots[2].set_desired(
                     robot_kinematics.global_to_ws(
                         robot_vector, 
                         robot.orientation

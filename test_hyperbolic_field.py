@@ -1,5 +1,7 @@
 import time
 import argparse
+import math
+from utils import util
 
 parser = argparse.ArgumentParser(description='BahiaRT_V3S')
 parser.add_argument('--env', default='simulation') # real or simulation
@@ -73,7 +75,8 @@ if __name__ == '__main__':
                 robot.update(vision.frame)
                 ball.update(vision.frame)
                 pot_field.update_home_point(ball.position)
-                
+            
+
                 POWER_MULTIPLY = 2000
                 robot.set_desired(
                     robot_kinematics.global_to_ws(
@@ -99,7 +102,7 @@ if __name__ == '__main__':
                         ]
                     )
                 else:
-                    vision.send_data(robot)
+                    vision.send_data([robot])
      
         else:
             print('Waiting for vision data...')

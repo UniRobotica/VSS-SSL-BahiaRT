@@ -25,7 +25,7 @@ def speed_to_power(v: float, w: float):
 def calculate_local_speeds(vg: list[float], orientation: float):
     
     #proporcional angular
-    n = (1/0.185)
+    n = (1/0.1)
     
     theta = util.apply_angular_decay(orientation, 1)
     
@@ -45,7 +45,7 @@ def calculate_local_speeds(vg: list[float], orientation: float):
     # if abs(angle_error_2) < abs(angle_error_1):
     #    w *= -1
     
-    return v, w
+    return v, -w
 
 
 def global_to_ws(vg: list[float], orientation: float):
