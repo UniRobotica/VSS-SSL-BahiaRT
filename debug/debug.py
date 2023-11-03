@@ -6,7 +6,7 @@ import numpy as np
 from debug import measures, draw
 from algorithms import univector_field
 
-ball_position = [0.75, 0.65]
+angle = math.radians(0)
 
 def debug(name: str, univector_field: univector_field.BaseField, obstacles: list[list[int]]) -> None:
 
@@ -30,7 +30,7 @@ def getVectors(w: int, h: int, step: int, get_vec: univector_field.BaseField, ob
             if obstacles is None:
                 vector = univector_field.Nh(
                     get_vec.compute(
-                        [x/100, y/100], math.pi + util.wrap_to_pi(math.atan2(0 - ball_position[1], 0.75 - ball_position[0]))
+                        [x/100, y/100], util.wrap_to_pi(math.radians(0))
                     )
                 )
             else:

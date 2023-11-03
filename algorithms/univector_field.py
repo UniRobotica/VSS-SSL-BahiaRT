@@ -158,7 +158,7 @@ class HyperbolicField(BaseField):
         super().__init__(home_point)
         
         self.env = env
-        self.cw = not cw
+        self.cw = cw
         self.radius = CONSTANTS[self.env]['D_E']
         self.kp = CONSTANTS[self.env]['K_R']
     

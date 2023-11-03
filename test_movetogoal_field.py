@@ -2,7 +2,6 @@ import time
 import math
 from utils import util
 import argparse
-from algorithms import robot_kinematics
 
 parser = argparse.ArgumentParser(description='BahiaRT_V3S')
 parser.add_argument('--env', default='simulation') # real or simulation
@@ -56,6 +55,8 @@ pot_field = univector_field.MoveToGoalField(
 )
 
 # -----------------------------------------------------------------------------
+POWER_MULTIPLY = 1000
+
 if __name__ == '__main__':
     
     while True:
@@ -75,19 +76,15 @@ if __name__ == '__main__':
                 ball.update(vision.frame)
                 pot_field.update_home_point(ball.position)
 
-                angle = math.pi + util.wrap_to_pi(math.atan2(0 - ball.position[1], 0.75 - ball.position[0]))
-
-                POWER_MULTIPLY = 500
-                robot.set_desired(
-                    robot_kinematics.global_to_ws(
-                        pot_field.Nh(robot.position, angle), 
-                        robot.orientation
-                    ) * POWER_MULTIPLY
-                )
+                angle_to_reach = util.wrap_to_pi(math.atan2(0 - ball.position[1], 0.85 - ball.position[0]))
+                print(f'Angle to reach: {math.degrees(angle_to_reach)}')
                 
-                print('wl:',robot.wl)
-                print('wr:',robot.wr)
-                print(' ')
+                # Calculando velocidade das rodas
+                vector_speed = pot_field.Nh(robot.front_position, angle_to_reach)
+                wheels_speed = robot.global_to_ws(vector_speed) * POWER_MULTIPLY
+                robot.set_desired(wheels_speed)
+                
+                robot.print_info()
                 
                 # Enviando informações via Serial
                 if args.env == 'real':
@@ -102,6 +99,7 @@ if __name__ == '__main__':
                         ]
                     )
                 else:
+                    #robot.set_desired([0,0])
                     vision.send_data([robot])
      
         else:
