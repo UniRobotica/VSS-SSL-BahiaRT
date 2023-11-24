@@ -1,3 +1,3 @@
 # VSS BahiaRT ACSO UNEB Real League
 
-Em construção
+Testes do time BahiaRT para a LARC2023
